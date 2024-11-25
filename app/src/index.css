@@ -1,0 +1,17 @@
+.error {
+  color: red;
+  font-size: small;
+}
+.input-error {
+  color: red;
+  border: 1px solid red;
+}
+.delete-comment {
+  float: right;
+  font-size: 11px;
+}
+.delete-comment:hover,
+.delete-post:hover {
+  color: red;
+  text-decoration: underline;
+}
