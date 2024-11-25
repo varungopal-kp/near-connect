@@ -17,18 +17,13 @@ export default function LeftSidebar() {
           </ul>
         </div>
         <div className="widget">
-          <h4 className="widget-title">Shortcuts</h4>
+          <h4 className="widget-title">Menu</h4>
           <ul className="naves">
-            <li>
-              <i className="ti-user"></i>
-              <a href="timeline-friends.html" title="">
-                friends
-              </a>
-            </li>
+            
             <li>
               <i className="ti-image"></i>
               <a href="timeline-photos.html" title="">
-                images
+                Photos
               </a>
             </li>
             <li>

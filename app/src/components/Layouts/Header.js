@@ -176,6 +176,14 @@ export default function Header() {
                       >
                         Friends
                       </a>
+                      <a
+                        class=""
+                        href="timeline-friends.html"
+                        title=""
+                        data-ripple=""
+                      >
+                        Followers
+                      </a>
                     </li>
                   </ul>
                 </div>
