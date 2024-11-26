@@ -5,6 +5,7 @@ const { postSchema } = require("../validations/postSchema");
 const PostInteraction = require("../models/postInteraction");
 const { convertToObjectId } = require("../helpers/mongoUtils");
 const mongoose = require("mongoose");
+const userActivityListener = require("../helpers/Listeners/userActivityListener");
 
 // create a new post
 exports.createPost = async (req, res) => {
@@ -24,6 +25,12 @@ exports.createPost = async (req, res) => {
     const newPost = new Post(data);
     await newPost.save();
     await newPost.populate("user");
+
+    userActivityListener.emit("userActivity", {
+      userId: req.user.userId,
+      activity: "Posted",
+    });
+
     return responseHelper.success(
       res,
       newPost,
@@ -31,6 +38,7 @@ exports.createPost = async (req, res) => {
       201
     );
   } catch (error) {
+    console.log(error);
     return responseHelper.error(res, error, "Error creating post", 500);
   }
 };
@@ -126,9 +134,18 @@ exports.postIteration = async (req, res) => {
       }
     }
 
-    await Post.findByIdAndUpdate(body.post, postUpdates).session(session);
+    const post = await Post.findByIdAndUpdate(body.post, postUpdates).session(
+      session
+    );
 
     await session.commitTransaction();
+
+    userActivityListener.emit("userActivity", {
+      userId: userId,
+      post: post._id,
+      activity: body.like ? "Liked" : "Disliked",
+      associatedUserId: post.user,
+    });
 
     return responseHelper.success(res, postIteration, "Success", 200);
   } catch (error) {
@@ -143,7 +160,7 @@ exports.postIteration = async (req, res) => {
 exports.list = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
- 
+
   try {
     const skip = (page - 1) * limit;
 
@@ -229,7 +246,7 @@ exports.list = async (req, res) => {
           canModify: {
             $eq: [
               "$user._id", // Compare post creator's user ID with req.user.userId
-              convertToObjectId(req.user.userId), 
+              convertToObjectId(req.user.userId),
             ],
           },
         },

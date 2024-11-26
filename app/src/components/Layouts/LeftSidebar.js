@@ -1,6 +1,8 @@
 import React from "react";
+import moment from "moment";
 
-export default function LeftSidebar() {
+export default function LeftSidebar(props) {
+
   return (
     <div className="col-lg-3">
       <aside className="sidebar static">
@@ -19,7 +21,6 @@ export default function LeftSidebar() {
         <div className="widget">
           <h4 className="widget-title">Menu</h4>
           <ul className="naves">
-            
             <li>
               <i className="ti-image"></i>
               <a href="timeline-photos.html" title="">
@@ -62,42 +63,32 @@ export default function LeftSidebar() {
         <div className="widget">
           <h4 className="widget-title">Recent Activity</h4>
           <ul className="activitiez">
-            <li>
-              <div className="activity-meta">
-                <i>10 hours Ago</i>
-                <span>
-                  <a href="#" title="">
-                    Commented on Video posted{" "}
-                  </a>
-                </span>
-                <h6>
-                  by <a href="newsfeed.html">black demon.</a>
-                </h6>
-              </div>
-            </li>
-            <li>
-              <div className="activity-meta">
-                <i>30 Days Ago</i>
-                <span>
-                  <a href="newsfeed.html" title="">
-                    Posted your status. “Hello guys, how are you?”
-                  </a>
-                </span>
-              </div>
-            </li>
-            <li>
-              <div className="activity-meta">
-                <i>2 Years Ago</i>
-                <span>
-                  <a href="#" title="">
-                    Share a video on her timeline.
-                  </a>
-                </span>
-                <h6>
-                  "<a href="newsfeed.html">you are so funny mr.been.</a>"
-                </h6>
-              </div>
-            </li>
+            {props.profileData &&
+              props.profileData?.data?.recentActivity?.map((item, i) => {
+                return (
+                  <li key={i}>
+                    <div className="activity-meta">
+                      <i>{moment(item.createdAt).fromNow() || ""}</i>
+                      <span>
+                        {item.activity === "Posted" ? (
+                          <a href="#" title="">
+                            New Post is shared
+                          </a>
+                        ) : (
+                          <a href="#" title="">
+                            {item.activity} on Post posted{" "}
+                          </a>
+                        )}
+                      </span>
+                      {item.activity !== "Posted" && (
+                        <h6>
+                          by <a href="">{item.associatedUser?.email}</a>
+                        </h6>
+                      )}
+                    </div>
+                  </li>
+                );
+              })}
           </ul>
         </div>
       </aside>

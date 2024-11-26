@@ -4,6 +4,7 @@ const Reply = require("../models/reply");
 const { convertToObjectId } = require("../helpers/mongoUtils");
 const mongoose = require("mongoose");
 const Post = require("../models/post");
+const userActivityListener = require("../helpers/Listeners/userActivityListener");
 
 exports.createComment = async (req, res) => {
   const session = await mongoose.startSession();
@@ -16,13 +17,20 @@ exports.createComment = async (req, res) => {
     const comment = new Comment(data);
     await comment.save({ session });
 
-    await Post.findByIdAndUpdate(data.post, { $inc: { comments: 1 } }).session(
-      session
-    );
+    const post = await Post.findByIdAndUpdate(data.post, {
+      $inc: { comments: 1 },
+    }).session(session);
 
     await session.commitTransaction();
 
     await comment.populate("user");
+
+    userActivityListener.emit("userActivity", {
+      userId: req.user.userId,
+      activity: "Commented",
+      postId: data.post,
+      associatedUserId: post.user,
+    });
 
     return responseHelper.success(
       res,
@@ -124,6 +132,16 @@ exports.createReply = async (req, res) => {
 
     const reply = new Reply(data);
     await reply.save();
+
+    const comment = await Comment.findById(data.comment).select("user");
+
+    userActivityListener.emit("userActivity", {
+      userId: req.user.userId,
+      activity: "Replied",
+      postId: data.comment,
+      associatedUserId: comment.user,
+    });
+
     return responseHelper.success(
       res,
       reply,
@@ -138,8 +156,8 @@ exports.createReply = async (req, res) => {
 exports.getReplies = async (req, res) => {
   try {
     const { commentId } = req.params;
-    
-    const page = +req.query.page || 1; 
+
+    const page = +req.query.page || 1;
     const limit = +req.query.limit || 3;
     const skip = (page - 1) * limit;
 

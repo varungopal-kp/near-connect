@@ -4,11 +4,13 @@ import Header from "./Header";
 import LeftSidebar from "./LeftSidebar";
 import RightSidebar from "./RightSidebar";
 import Footer from "./Footer";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getProfile } from "../../redux/actions/commonActions";
 
 export default function Index({ children }) {
   const dispatch = useDispatch();
+
+  const profileData = useSelector((state) => state.common.profile);
 
   useEffect(() => {
     dispatch(getProfile());
@@ -25,7 +27,7 @@ export default function Index({ children }) {
               <div className="col-lg-12">
                 <div className="row" id="page-contents">
                   {/* Left Sidebar */}
-                  <LeftSidebar />
+                  <LeftSidebar profileData={profileData}/>
 
                   {/* Main content section renders children */}
                   <>{children}</>

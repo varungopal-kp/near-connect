@@ -1,5 +1,6 @@
 const User = require("../models/user");
 const responseHelper = require("../helpers/responseHelper");
+const { convertToObjectId } = require("../helpers/mongoUtils");
 
 // Create a new user
 exports.createUser = async (req, res) => {
@@ -46,12 +47,57 @@ exports.getUserById = async (req, res) => {
 // Get user profile
 exports.getUserProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.user.userId).select("-password");
-    if (!user) {
+    const user = await User.aggregate([
+      {
+        $match: {
+          _id: convertToObjectId(req.user.userId),
+        },
+      },
+      {
+        $unwind: "$recentActivity",
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "recentActivity.associatedUser",
+          foreignField: "_id",
+          as: "recentActivity.associatedUser",
+          pipeline: [
+            {
+              $project: {
+                _id: 1,
+                name: 1,
+                email: 1,
+              },
+            },
+          ],
+        },
+      },
+      {
+        $unwind: {
+          path: "$recentActivity.associatedUser",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $group: {
+          _id: "$_id",
+          name: { $first: "$name" },
+          email: { $first: "$email" },
+          pic: { $first: "$pic" },
+          recentActivity: { $push: "$recentActivity" },
+        },
+      },
+      {
+        $limit: 1,          // Limit to 1 document to improve little performance
+      },
+    ]);
+    if (!user || user.length === 0) {
       return responseHelper.error(res, null, "User not found", 404);
     }
-    return responseHelper.success(res, user, "Success", 200);
+    return responseHelper.success(res, user[0], "Success", 200);
   } catch (error) {
+    console.log(error);
     return responseHelper.error(res, error, "Error fetching user", 500);
   }
 };
