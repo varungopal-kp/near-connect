@@ -13,7 +13,7 @@ import InfiniteScrollList from "../../components/InfiniteScroll";
 import moment from "moment";
 import { getFullUrl } from "../../helpers/utility";
 import CommentList from "../../components/CommentList";
-import { fetchItems } from "../../redux/actions/commonActions";
+import { fetchItems } from "../../redux/actions/postActions";
 import {
   CREATE_ITEM,
   DELETE_ITEM,
@@ -104,7 +104,16 @@ export default function Index() {
     const likeData = {
       post: post._id,
     };
+    
     if (key === "like") {
+      if(updateItem.isLiked){
+        updateItem.likes = updateItem.likes - 1
+      }else{
+        updateItem.likes = updateItem.likes + 1
+        if(updateItem.isDisliked){
+          updateItem.dislikes = updateItem.dislikes - 1
+        }
+      }
       const value = !updateItem.isLiked;
       updateItem.isLiked = value;
       updateItem.isDisliked = false;
@@ -112,6 +121,14 @@ export default function Index() {
       likeData.like = value;
       likeData.dislike = false;
     } else if (key === "dislike") {
+      if(updateItem.isDisliked){
+        updateItem.dislikes = updateItem.dislikes - 1
+      }else{
+        updateItem.dislikes = updateItem.dislikes + 1
+        if(updateItem.isLiked){
+          updateItem.likes = updateItem.likes - 1
+        }
+      }
       const value = !updateItem.isDisliked;
       updateItem.isDisliked = value;
       updateItem.isLiked = false;

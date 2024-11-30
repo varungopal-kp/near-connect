@@ -17,6 +17,7 @@ function InfiniteScrollList({ infiniteRender, limit = 10, fetchItems }) {
     }
   }, []);
 
+
   const fetchMoreData = () => {
     if (!loading && hasMore) {
       dispatch(fetchItems(page, limit));
@@ -38,6 +39,7 @@ function InfiniteScrollList({ infiniteRender, limit = 10, fetchItems }) {
           </div>
         ))}
       </InfiniteScroll>
+     
     </div>
   );
 }

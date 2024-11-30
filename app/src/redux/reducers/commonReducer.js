@@ -9,6 +9,7 @@ import {
   GET_PROFILE_REQUEST,
   GET_PROFILE_SUCCESS,
   GET_PROFILE_FAILURE,
+  CLEAR_LIST,
 } from "./../constants/common";
 
 const initialState = {
@@ -30,6 +31,7 @@ const itemsReducer = (state = initialState, action) => {
         error: null,
       };
     case FETCH_ITEMS_SUCCESS:
+      console.log(action.payload);
       return {
         ...state,
         loading: false,
@@ -87,6 +89,12 @@ const itemsReducer = (state = initialState, action) => {
         ...state,
         loading: false,
         error: action.payload,
+      };
+
+    case CLEAR_LIST:
+      return {
+        ...state,
+        list: [],
       };
     default:
       return state;
