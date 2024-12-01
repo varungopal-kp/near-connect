@@ -1,15 +1,11 @@
-import React, { useEffect } from "react";
+import React from "react";
 import InfiniteScrollList from "../../components/InfiniteScroll";
-import { getFollowersPending } from "../../redux/actions/followerActions";
+import { getPendingFollowers } from "../../redux/actions/followActions";
 import { useDispatch } from "react-redux";
-import { CLEAR_LIST } from "../../redux/constants/common";
+import ProfilePic from "../../components/ProfilePic";
 
 export default function FollowerRequest() {
   const dispatch = useDispatch();
-
-  useEffect(() => {
-    dispatch({ type: CLEAR_LIST });
-  }, []);
 
   const infiniteRender = (item) => {
     return (
@@ -17,16 +13,16 @@ export default function FollowerRequest() {
         <div class="nearly-pepls">
           <figure>
             <a href="time-line.html" title="">
-              <img src="images/resources/nearly5.jpg" alt="" />
+              <ProfilePic url={item.requestUser?.pic} />
             </a>
           </figure>
           <div class="pepl-info">
             <h4>
               <a href="time-line.html" title="">
-                {item.follower?.name}
+                {item.requestUser?.name}
               </a>
             </h4>
-            <span>{item.follower?.email}</span>
+            <span>{item.requestUser?.email}</span>
             <a href="#" title="" class="add-butn more-action" data-ripple="">
               delete Request
             </a>
@@ -45,7 +41,7 @@ export default function FollowerRequest() {
         <InfiniteScrollList
           infiniteRender={infiniteRender}
           limit={10}
-          fetchItems={getFollowersPending}
+          fetchItems={getPendingFollowers}
         />
       </ul>
       {/* <button class="btn-view btn-load-more"></button> */}

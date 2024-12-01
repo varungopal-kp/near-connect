@@ -1,10 +1,44 @@
-import React, { useEffect } from "react";
+import React from "react";
 import InfiniteScrollList from "../../components/InfiniteScroll";
-import { getFollowers } from "../../redux/actions/followerActions";
-
+import {
+  addFriend,
+  getFollowers,
+  removeFollower,
+} from "../../redux/actions/followActions";
+import ProfilePic from "../../components/ProfilePic";
+import { useDispatch } from "react-redux";
+import { DELETE_ITEM } from "../../redux/constants/common";
+import { toast } from "react-toastify";
+import swal from "sweetalert";
 
 export default function Followers() {
+  const dispatch = useDispatch();
 
+  const handleFollowerRemove = (id) => {
+    return dispatch(removeFollower(id))
+      .then((res) => {
+        if (res.data) {
+          dispatch({ type: DELETE_ITEM, payload: id });
+          return toast.success("Removed");
+        }
+      })
+      .catch((err) => {
+        return toast.error(err || "Something went wrong");
+      });
+  };
+
+  const handleAddFriend = (id, friend) => {
+    return dispatch(addFriend(friend))
+      .then((res) => {
+        if (res.data) {
+          dispatch({ type: DELETE_ITEM, payload: id });
+          return toast.success("Friends");
+        }
+      })
+      .catch((err) => {
+        return toast.error(err || "Something went wrong");
+      });
+  };
 
   const infiniteRender = (item) => {
     return (
@@ -12,7 +46,7 @@ export default function Followers() {
         <div class="nearly-pepls">
           <figure>
             <a href="time-line.html" title="">
-              <img src="images/resources/friend-avatar9.jpg" alt="" />
+              <ProfilePic url={item.follower?.pic} />
             </a>
           </figure>
           <div class="pepl-info">
@@ -22,10 +56,46 @@ export default function Followers() {
               </a>
             </h4>
             <span>{item.follower?.email}</span>
-            <a href="#" title="" class="add-butn more-action" data-ripple="">
-              unfriend
+            <a
+              href="#"
+              title=""
+              class="add-butn more-action"
+              data-ripple=""
+              onClick={(e) => {
+                e.preventDefault();
+                swal({
+                  title: "Are you sure?",
+                  icon: "warning",
+                  buttons: true,
+                  dangerMode: true,
+                }).then((willDelete) => {
+                  if (willDelete) {
+                    handleFollowerRemove(item._id);
+                  }
+                });
+              }}
+            >
+              remove
             </a>
-            <a href="#" title="" class="add-butn" data-ripple="">
+            <a
+              href="#"
+              title=""
+              class="add-butn"
+              data-ripple=""
+              onClick={(e) => {
+                e.preventDefault();
+                swal({
+                  title: "Are you sure?",
+                  icon: "warning",
+                  buttons: true,
+                  dangerMode: true,
+                }).then((willDelete) => {
+                  if (willDelete) {
+                    handleAddFriend(item._id, item.follower._id);
+                  }
+                });
+              }}
+            >
               add friend
             </a>
           </div>

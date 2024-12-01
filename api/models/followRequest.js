@@ -1,9 +1,9 @@
 const mongoose = require("mongoose");
 
-const FriendRequestSchema = new mongoose.Schema(
+const FollowRequestSchema = new mongoose.Schema(
   {
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-    friend: {
+    requestUser: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
@@ -20,4 +20,4 @@ const FriendRequestSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("FriendRequestSchema", FriendRequestSchema);
+module.exports = mongoose.model("FollowRequest", FollowRequestSchema);

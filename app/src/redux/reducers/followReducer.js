@@ -2,7 +2,7 @@ import {
   GET_FOLLOWERS_REQUEST,
   GET_FOLLOWERS_PENDING_REQUEST,
   GET_FRIEND_REQUEST,
-} from "../constants/follower";
+} from "../constants/follow";
 
 const initialState = {
   loading: false,
@@ -12,7 +12,7 @@ const initialState = {
   error: null,
 };
 
-const followerReducer = (state = initialState, action) => {
+const followReducer = (state = initialState, action) => {
   switch (action.type) {
     case GET_FOLLOWERS_REQUEST:
       return {
@@ -40,4 +40,4 @@ const followerReducer = (state = initialState, action) => {
   }
 };
 
-export default followerReducer;
+export default followReducer;

@@ -31,7 +31,7 @@ const itemsReducer = (state = initialState, action) => {
         error: null,
       };
     case FETCH_ITEMS_SUCCESS:
-      console.log(action.payload);
+      
       return {
         ...state,
         loading: false,
@@ -95,6 +95,9 @@ const itemsReducer = (state = initialState, action) => {
       return {
         ...state,
         list: [],
+        page: 1,
+        totalPages: 1,
+        hasMore: false,
       };
     default:
       return state;

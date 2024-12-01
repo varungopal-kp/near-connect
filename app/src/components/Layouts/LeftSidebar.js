@@ -2,7 +2,6 @@ import React from "react";
 import moment from "moment";
 
 export default function LeftSidebar(props) {
-
   return (
     <div className="col-lg-3">
       <aside className="sidebar static">
@@ -74,17 +73,22 @@ export default function LeftSidebar(props) {
                           <a href="#" title="">
                             New Post is shared
                           </a>
+                        ) : item.activity === "New Friend" ? (
+                          <a href="#" title="">
+                            A {item.activity} is added{" "}
+                          </a>
                         ) : (
                           <a href="#" title="">
                             {item.activity} on Post posted{" "}
                           </a>
                         )}
                       </span>
-                      {item.activity !== "Posted" && (
-                        <h6>
-                          by <a href="">{item.associatedUser?.email}</a>
-                        </h6>
-                      )}
+                      {item.activity !== "Posted" &&
+                        item.activity !== "New Friend" && (
+                          <h6>
+                            by <a href="">{item.associatedUser?.email}</a>
+                          </h6>
+                        )}
                     </div>
                   </li>
                 );

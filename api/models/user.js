@@ -28,4 +28,4 @@ UserSchema.methods.toJSON = function () {
   return user;
 };
 
-module.exports = mongoose.model("User", UserSchema);
+module.exports = mongoose.model("User", UserSchema);    // Define name and schema for collection

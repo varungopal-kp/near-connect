@@ -3,14 +3,14 @@ import { thunk } from "redux-thunk";
 import authReducer from "../redux/reducers/authReducer";
 import postReducer from "../redux/reducers/postReducer";
 import commonReducer from "../redux/reducers/commonReducer";
-import followerReducer from "../redux/reducers/followerReducer";
+import followReducer from "./reducers/followReducer";
 
 // Combine multiple reducers (if needed) into a rootReducer
 const rootReducer = combineReducers({
   auth: authReducer,
   post: postReducer,
   common: commonReducer,
-  connections: followerReducer,
+  connections: followReducer,
 });
 
 // Check if Redux DevTools Extension is installed and use it if available
