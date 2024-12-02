@@ -3,9 +3,44 @@ import InfiniteScrollList from "../../components/InfiniteScroll";
 import { getPendingFollowers } from "../../redux/actions/followActions";
 import { useDispatch } from "react-redux";
 import ProfilePic from "../../components/ProfilePic";
+import { toast } from "react-toastify";
+import {
+  confirmFollowRequest,
+  deleteFollowRequest,
+} from "../../redux/actions/followActions";
+import { DELETE_ITEM } from "../../redux/constants/common";
+import swal from "sweetalert";
 
-export default function FollowerRequest() {
+
+export default function FollowerRequest(props) {
   const dispatch = useDispatch();
+
+  const handleDeleteRequest = (id) => {
+    return dispatch(deleteFollowRequest(id))
+      .then((res) => {
+        if (res.data) {
+          dispatch({ type: DELETE_ITEM, payload: id });
+          props.setFollowRequestCount((preValue) => preValue - 1);
+          return toast.success("Removed");
+        }
+      })
+      .catch((err) => {
+        return toast.error(err || "Something went wrong");
+      });
+  };
+
+  const handleConfirm = (id) => {
+    return dispatch(confirmFollowRequest(id))
+      .then((res) => {
+        if (res.data) {
+          dispatch({ type: DELETE_ITEM, payload: id });
+          return toast.success("Confirmed");
+        }
+      })
+      .catch((err) => {
+        return toast.error(err || "Something went wrong");
+      });
+  };
 
   const infiniteRender = (item) => {
     return (
@@ -23,10 +58,46 @@ export default function FollowerRequest() {
               </a>
             </h4>
             <span>{item.requestUser?.email}</span>
-            <a href="#" title="" class="add-butn more-action" data-ripple="">
+            <a
+              href="#"
+              title=""
+              class="add-butn more-action"
+              data-ripple=""
+              onClick={(e) => {
+                e.preventDefault();
+                swal({
+                  title: "Are you sure?",
+                  icon: "warning",
+                  buttons: true,
+                  dangerMode: true,
+                }).then((willDelete) => {
+                  if (willDelete) {
+                    handleDeleteRequest(item._id);
+                  }
+                });
+              }}
+            >
               delete Request
             </a>
-            <a href="#" title="" class="add-butn" data-ripple="">
+            <a
+              href="#"
+              title=""
+              class="add-butn"
+              data-ripple=""
+              onClick={(e) => {
+                e.preventDefault();
+                swal({
+                  title: "Are you sure?",
+                  icon: "warning",
+                  buttons: true,
+                  dangerMode: true,
+                }).then((willDelete) => {
+                  if (willDelete) {
+                    handleConfirm(item._id);
+                  }
+                });
+              }}
+            >
               Confirm
             </a>
           </div>

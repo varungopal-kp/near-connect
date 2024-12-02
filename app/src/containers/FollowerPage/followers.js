@@ -11,7 +11,7 @@ import { DELETE_ITEM } from "../../redux/constants/common";
 import { toast } from "react-toastify";
 import swal from "sweetalert";
 
-export default function Followers() {
+export default function Followers(props) {
   const dispatch = useDispatch();
 
   const handleFollowerRemove = (id) => {
@@ -19,6 +19,7 @@ export default function Followers() {
       .then((res) => {
         if (res.data) {
           dispatch({ type: DELETE_ITEM, payload: id });
+          props.setFollowersCount((preValue) => preValue - 1);
           return toast.success("Removed");
         }
       })

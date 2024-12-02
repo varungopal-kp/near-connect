@@ -1,9 +1,9 @@
-import React, { useEffect, memo, useState, useRef } from "react";
+import React, { useEffect, memo, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { CLEAR_LIST } from "../redux/constants/common";
 
-function InfiniteScrollList({ infiniteRender, limit = 10, fetchItems, view }) {
+function InfiniteScrollList({ infiniteRender, limit = 10, fetchItems }) {
   const dispatch = useDispatch();
   const { common } = useSelector((state) => state);
 
