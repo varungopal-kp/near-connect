@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 
 export default function ProfilePic(props) {
   const [image, setImage] = React.useState(
-    `${process.env.REACT_APP_URL}/images/propic.png`
+    `${process.env.REACT_APP_URL}/images/propic.jpg`
   );
 
   let picStyle = {

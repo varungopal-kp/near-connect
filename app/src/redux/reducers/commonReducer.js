@@ -10,6 +10,10 @@ import {
   GET_PROFILE_SUCCESS,
   GET_PROFILE_FAILURE,
   CLEAR_LIST,
+  GET_DASHBOARD_COUNT_REQUEST,
+  GET_DASHBOARD_COUNT_SUCCESS,
+  GET_DASHBOARD_COUNT_FAILURE,
+  UPDATE_DASHBOARD_COUNT,
 } from "./../constants/common";
 
 const initialState = {
@@ -20,6 +24,8 @@ const initialState = {
   page: 1,
   totalPages: 1,
   hasMore: false,
+  totalNotifications: 0,
+  totalChats: 0
 };
 
 const itemsReducer = (state = initialState, action) => {
@@ -99,6 +105,34 @@ const itemsReducer = (state = initialState, action) => {
         totalPages: 1,
         hasMore: false,
       };
+
+      case GET_DASHBOARD_COUNT_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+        totalNotifications: 0,
+        totalChats: 0
+      }
+      case GET_DASHBOARD_COUNT_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+        totalNotifications: action.payload.notifications || 0,
+        totalChats: action.payload.chats || 0
+      }
+      case GET_DASHBOARD_COUNT_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload
+      }
+      case UPDATE_DASHBOARD_COUNT:
+      return {
+        ...state,
+        ...action.payload
+      }
     default:
       return state;
   }

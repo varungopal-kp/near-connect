@@ -2,7 +2,7 @@ const Follower = require("../models/follower");
 const FollowRequest = require("../models/followRequest");
 const Friend = require("../models/friend");
 const responseHelper = require("../helpers/responseHelper");
-const userActivityListener = require("../helpers/Listeners/userActivityListener");
+const userActivityListener = require("../helpers/Events/userActivityListener");
 const mongoose = require("mongoose");
 
 exports.getFollowers = async (req, res) => {
@@ -154,8 +154,10 @@ exports.confirmFriend = async (req, res) => {
 
       userActivityListener.emit("userActivity", {
         userId: req.user.userId,
-        activity: "New Friend",
-        associatedUserId: req.params.id,
+        type: "newFriend",
+        data: {
+          associatedUserId: req.params.id,
+        },
       });
 
       return responseHelper.success(res, newfriend, "Success", 200);

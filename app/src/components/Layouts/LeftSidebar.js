@@ -68,21 +68,7 @@ export default function LeftSidebar(props) {
                   <li key={i}>
                     <div className="activity-meta">
                       <i>{moment(item.createdAt).fromNow() || ""}</i>
-                      <span>
-                        {item.activity === "Posted" ? (
-                          <a href="#" title="">
-                            New Post is shared
-                          </a>
-                        ) : item.activity === "New Friend" ? (
-                          <a href="#" title="">
-                            A {item.activity} is added{" "}
-                          </a>
-                        ) : (
-                          <a href="#" title="">
-                            {item.activity} on Post posted{" "}
-                          </a>
-                        )}
-                      </span>
+                      <span>{item.message}</span>
                       {item.activity !== "Posted" &&
                         item.activity !== "New Friend" && (
                           <h6>

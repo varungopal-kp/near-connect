@@ -5,7 +5,8 @@ const { postSchema } = require("../validations/postSchema");
 const PostInteraction = require("../models/postInteraction");
 const { convertToObjectId } = require("../helpers/mongoUtils");
 const mongoose = require("mongoose");
-const userActivityListener = require("../helpers/Listeners/userActivityListener");
+const userActivityListener = require("../helpers/Events/userActivityListener");
+const { sendNotification } = require("../helpers/notificationHelper");
 
 // create a new post
 exports.createPost = async (req, res) => {
@@ -28,7 +29,7 @@ exports.createPost = async (req, res) => {
 
     userActivityListener.emit("userActivity", {
       userId: req.user.userId,
-      activity: "Posted",
+      type: "newPost",
     });
 
     return responseHelper.success(
@@ -119,7 +120,9 @@ exports.postIteration = async (req, res) => {
       { user: userId, post: body.post },
       data,
       { upsert: true, new: true }
-    ).session(session);
+    )
+      .populate("user", ["name", "pic"])
+      .session(session);
 
     const postUpdates = { $inc: { likes: 0, dislikes: 0 } };
 
@@ -142,9 +145,19 @@ exports.postIteration = async (req, res) => {
 
     userActivityListener.emit("userActivity", {
       userId: userId,
-      post: post._id,
-      activity: body.like ? "Liked" : "Disliked",
-      associatedUserId: post.user,
+      type: "postInteractions",
+      data: {
+        associatedUserId: post.user,
+      },
+    });
+
+    sendNotification({
+      userIds: [post.user],
+      type: "postInteractions",
+      data: {
+        like: body.like,
+        interactedUser: postIteration.user,
+      },
     });
 
     return responseHelper.success(res, postIteration, "Success", 200);

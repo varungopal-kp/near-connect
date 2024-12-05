@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { logout } from "../../redux/actions/authActions";
-import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import { getDashboardCount } from "../../redux/actions/commonActions";
 
 export default function Header() {
   const dispatch = useDispatch();
@@ -9,6 +10,8 @@ export default function Header() {
   const [isActive, setIsActive] = useState(false);
   const userSettingsRef = useRef(null); // Reference to the user settings dropdown
   const userImageRef = useRef(null); // Reference to the user image div
+
+  const common = useSelector((state) => state.common);
 
   // Function to toggle the dropdown
   const toggleDropdown = () => {
@@ -26,6 +29,10 @@ export default function Header() {
       setIsActive(false); // Close the dropdown if clicked outside
     }
   };
+
+  useEffect(() => {
+    dispatch(getDashboardCount()).catch((error) => console.log(error));
+  }, []);
 
   // This effect adds an event listener to handle clicks outside
   useEffect(() => {
@@ -56,10 +63,10 @@ export default function Header() {
             </a>
           </span>
           <span className="mh-text">
-            <a href="newsfeed.html" title="">
+            <Link to="/">
               {/* <img src="images/logo2.png" alt="" /> */}
               NearConnect
-            </a>
+            </Link>
           </span>
           <span className="mh-btns-right">
             <a className="fa fa-sliders" href="#shoppingbag"></a>
@@ -74,10 +81,10 @@ export default function Header() {
       </div>
       <div className="topbar stick">
         <div className="logo">
-          <a title="" href="newsfeed.html">
+          <Link to="/">
             {/* <img src="images/logo.png" alt="" /> */}
             NearConnect
-          </a>
+          </Link>
         </div>
 
         <div className="top-area">
@@ -89,7 +96,20 @@ export default function Header() {
               </button>
             </form>
           </div>
-
+          <ul class="setting-area">
+            <li>
+              <Link to="/notifications" title="Notifications">
+                <i class="ti-bell"></i>
+                <span>{common.totalNotifications}</span>
+              </Link>
+            </li>
+            <li>
+              <a href="#" title="Messages" data-ripple="">
+                <i class="ti-comment"></i>
+                <span>0</span>
+              </a>
+            </li>
+          </ul>
           <div className="user-img" onClick={toggleDropdown} ref={userImageRef}>
             <img src="images/resources/admin.jpg" alt="" />
             <span className="status f-online"></span>

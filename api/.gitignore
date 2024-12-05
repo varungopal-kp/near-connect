@@ -3,6 +3,8 @@
 # dependencies
 /node_modules
 package-lock.json
+near-connect-880ad-firebase-adminsdk-zzzko-3025fae4ac.json
+
 
 # testing
 /coverage
@@ -16,6 +18,7 @@ package-lock.json
 .env.development.local
 .env.test.local
 .env.production.local
+.env
 
 npm-debug.log*
 yarn-debug.log*

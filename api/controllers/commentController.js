@@ -4,7 +4,7 @@ const Reply = require("../models/reply");
 const { convertToObjectId } = require("../helpers/mongoUtils");
 const mongoose = require("mongoose");
 const Post = require("../models/post");
-const userActivityListener = require("../helpers/Listeners/userActivityListener");
+const userActivityListener = require("../helpers/Events/userActivityListener");
 
 exports.createComment = async (req, res) => {
   const session = await mongoose.startSession();
@@ -27,9 +27,10 @@ exports.createComment = async (req, res) => {
 
     userActivityListener.emit("userActivity", {
       userId: req.user.userId,
-      activity: "Commented",
-      postId: data.post,
-      associatedUserId: post.user,
+      type: "comment",
+      data: {
+        associatedUserId: post.user,
+      },
     });
 
     return responseHelper.success(
@@ -137,9 +138,10 @@ exports.createReply = async (req, res) => {
 
     userActivityListener.emit("userActivity", {
       userId: req.user.userId,
-      activity: "Replied",
-      postId: data.comment,
-      associatedUserId: comment.user,
+      type: "replied",
+      data: {
+        associatedUserId: comment.user,
+      },
     });
 
     return responseHelper.success(

@@ -13,6 +13,8 @@ const initialState = {
   replies: [],
   comment: null,
   error: null,
+  notificationCount:0,
+  
 };
 
 const commentReducer = (state = initialState, action) => {

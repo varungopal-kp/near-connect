@@ -1,11 +1,22 @@
 const mongoose = require("mongoose");
-const { create } = require("./post");
 const Schema = mongoose.Schema;
 
 const UserActivitySchema = new Schema({
-  activity: { type: String, required: true },
+  activity: {
+    type: String,
+    required: true,
+    enum: [
+      "follow",
+      "unfollow",
+      "postInteractions",
+      "commented",
+      "replied",
+      "newFriend",
+      "newPost",
+    ],
+  },
+  message: { type: String, required: true },
   associatedUser: { type: Schema.Types.ObjectId, ref: "User" },
-  post: { type: Schema.Types.ObjectId, ref: "Post" },
   createdAt: { type: Date, default: Date.now },
 });
 
@@ -17,6 +28,7 @@ const UserSchema = new Schema(
     password: { type: String, required: true },
     pic: { type: String },
     recentActivity: { type: [UserActivitySchema], default: [] },
+    fcmToken: { type: String },
   },
   { timestamps: true } // Automatically adds createdAt and updatedAt fields
 );
@@ -28,4 +40,4 @@ UserSchema.methods.toJSON = function () {
   return user;
 };
 
-module.exports = mongoose.model("User", UserSchema);    // Define name and schema for collection
+module.exports = mongoose.model("User", UserSchema); // Define name and schema for collection

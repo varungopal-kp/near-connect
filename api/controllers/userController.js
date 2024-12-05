@@ -54,7 +54,10 @@ exports.getUserProfile = async (req, res) => {
         },
       },
       {
-        $unwind: "$recentActivity",
+        $unwind: {
+          path: "$recentActivity",
+          preserveNullAndEmptyArrays: true, // Preserve the document even if recentActivity is empty
+        },
       },
       {
         $lookup: {
@@ -89,11 +92,31 @@ exports.getUserProfile = async (req, res) => {
         },
       },
       {
-        $limit: 1,          // Limit to 1 document to improve little performance
+        $project: {
+          _id: 1,
+          name: 1,
+          email: 1,
+          pic: 1,
+          recentActivity: {
+            $filter: {
+              input: "$recentActivity",
+              as: "activity",
+              cond: {
+                $and: [
+                  { $ne: ["$$activity", {}] }, // Exclude empty objects
+                  { $ne: ["$$activity.associatedUser", null] }, // Exclude if associatedUser is null
+                ],
+              },
+            },
+          },
+        },
+      },
+      {
+        $limit: 1, // Limit to 1 document to improve little performance
       },
     ]);
     if (!user || user.length === 0) {
-      return responseHelper.error(res, null, "User not found", 404);
+      return responseHelper.error(res, null, "User not found", 400);
     }
     return responseHelper.success(res, user[0], "Success", 200);
   } catch (error) {
