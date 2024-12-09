@@ -1066,7 +1066,7 @@ header.sticky {
 }
 
 .red {
-  background: #ed6b75;
+  background: #ed6b75 !important;
 }
 
 .green {
@@ -3355,7 +3355,7 @@ nav.breadcrumb {
   width: 100%;
 }
 
-.nearby-contct > li {
+.nearby-contct  li {
   background: #fff none repeat scroll 0 0;
   border: 1px solid #eaf1f6;
   display: inline-block;
@@ -3365,11 +3365,11 @@ nav.breadcrumb {
   transition: all 0.15s linear 0s;
 }
 
-.nearby-contct > li:last-child {
+.nearby-contct  li:last-child {
   margin-bottom: 0;
 }
 
-.nearby-contct > li:hover {
+.nearby-contct  li:hover {
   box-shadow: 0 8px 8px #e1e8ec;
   border-color: transparent;
 }
@@ -3404,6 +3404,17 @@ nav.breadcrumb {
 }
 
 a.add-butn {
+  color: #fff;
+  float: right;
+  font-size: 13px;
+  line-height: initial;
+  padding: 5px 10px;
+  position: absolute;
+  right: 0;
+  text-transform: capitalize;
+  top: 10px;
+}
+button.add-butn {
   color: #fff;
   float: right;
   font-size: 13px;
@@ -9993,4 +10004,10 @@ aside.sidebar.full-style {
   font-weight: bold;
   letter-spacing: 0.5px;
   text-transform: uppercase;
+}
+.gray{
+  background-color: gray !important;
+}
+.aquamarine{
+  background-color: aquamarine !important;
 }

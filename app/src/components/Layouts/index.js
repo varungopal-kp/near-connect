@@ -7,19 +7,27 @@ import Footer from "./Footer";
 import { useDispatch, useSelector } from "react-redux";
 import { getProfile } from "../../redux/actions/commonActions";
 
-export default function Index({ children }) {
+export default function Index({ children, layout }) {
+  let defaultLayout = 1;
+
+  const [_layout, setLayout] = React.useState(layout || defaultLayout);
+
   const dispatch = useDispatch();
 
-  const profileData = useSelector((state) => state.common.profile);
+  const common = useSelector((state) => state.common);
 
   useEffect(() => {
-    dispatch(getProfile());
+    setLayout(layout || defaultLayout);
+  }, [layout]); // Run when the `layout` prop changes
+
+  useEffect(() => {
+    dispatch(getProfile());   
   }, []);
 
   return (
     <div className="theme-layout">
       {/* Header and Navigation */}
-      <Header />
+      <Header layout={_layout} />
       <section>
         <div className="gap gray-bg">
           <div className="container-fluid">
@@ -27,13 +35,18 @@ export default function Index({ children }) {
               <div className="col-lg-12">
                 <div className="row" id="page-contents">
                   {/* Left Sidebar */}
-                  <LeftSidebar profileData={profileData}/>
+                  <LeftSidebar
+                    profileData={common.profile}
+                    layout={_layout}
+                    accountDetails={common.accountDetails}
+                  />
 
                   {/* Main content section renders children */}
+
                   <>{children}</>
 
                   {/* Right Sidebar */}
-                  <RightSidebar />
+                  <RightSidebar layout={_layout} />
                 </div>
               </div>
             </div>

@@ -151,14 +151,16 @@ exports.postIteration = async (req, res) => {
       },
     });
 
-    sendNotification({
-      userIds: [post.user],
-      type: "postInteractions",
-      data: {
-        like: body.like,
-        interactedUser: postIteration.user,
-      },
-    });
+    if (userId !== post.user) {
+      sendNotification({
+        userIds: [post.user],
+        type: "postInteractions",
+        data: {
+          like: body.like,
+          interactedUser: postIteration.user,
+        },
+      });
+    }
 
     return responseHelper.success(res, postIteration, "Success", 200);
   } catch (error) {
@@ -173,11 +175,18 @@ exports.postIteration = async (req, res) => {
 exports.list = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
+  let user = req.user.userId;
+  if (req.query.user && req.query.user !== "false") user = req.query.user;
 
   try {
     const skip = (page - 1) * limit;
 
     const list = await Post.aggregate([
+      {
+        $match: {
+          user: convertToObjectId(user),
+        },
+      },
       {
         $lookup: {
           from: "postinteractions", // Make sure this is the exact name of your PostInteraction collection in MongoDB
@@ -211,6 +220,15 @@ exports.list = async (req, res) => {
           localField: "postinteractions.user",
           foreignField: "_id",
           as: "postinteractions.user",
+          pipeline: [
+            {
+              $project: {
+                _id: 1,
+                name: 1,
+                pic: 1,
+              },
+            },
+          ]
         },
       },
 
@@ -249,7 +267,7 @@ exports.list = async (req, res) => {
                   {
                     $eq: [
                       "$$interaction.user._id",
-                      convertToObjectId(req.user.userId), // Convert req.user.userId to ObjectId
+                      convertToObjectId(req.user.userId), // Convert user to ObjectId
                     ],
                   }, // Match postinteractions.user._id with userId
                 ],
@@ -258,7 +276,7 @@ exports.list = async (req, res) => {
           },
           canModify: {
             $eq: [
-              "$user._id", // Compare post creator's user ID with req.user.userId
+              "$user._id", // Compare post creator's user ID with user
               convertToObjectId(req.user.userId),
             ],
           },
@@ -269,7 +287,7 @@ exports.list = async (req, res) => {
       { $limit: limit },
     ]);
 
-    const totalItems = await Post.countDocuments();
+    const totalItems = await Post.countDocuments({ user: user });
     const totalPages = Math.ceil(totalItems / limit);
     const hasMore = skip + limit < totalItems;
 

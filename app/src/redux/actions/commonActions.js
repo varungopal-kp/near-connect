@@ -15,6 +15,12 @@ import {
   DELETE_NOTIFICATION_FAILURE,
   DELETE_NOTIFICATION_SUCCESS,
   DELETE_NOTIFICATION_REQUEST,
+  PROFILE_SEARCH_REQUEST,
+  PROFILE_SEARCH_SUCCESS,
+  PROFILE_SEARCH_FAILURE,
+  FETCH_ITEMS_REQUEST,
+  FETCH_ITEMS_SUCCESS,
+  FETCH_ITEMS_FAILURE,
 } from "../constants/common";
 
 export const getProfile = () => async (dispatch) => {
@@ -110,3 +116,28 @@ export const deleteNotification = (id) => async (dispatch) => {
     return Promise.reject(errMessage);
   }
 };
+export const searchProfile =
+  ({ page, limit, search }) =>
+  async (dispatch) => {
+    try {
+      dispatch({ type: FETCH_ITEMS_REQUEST });
+      const response = await axios.get("/users/search", {
+        params: { page, limit, search },
+      });
+
+      dispatch({
+        type: FETCH_ITEMS_SUCCESS,
+        payload: { ...response.data.data },
+      });
+
+      return Promise.resolve(response.data);
+    } catch (error) {
+      const errMessage =
+        error.response?.data?.message || "Something went wrong";
+      dispatch({
+        type: FETCH_ITEMS_FAILURE,
+        error: error.message,
+      });
+      return Promise.reject(errMessage);
+    }
+  };

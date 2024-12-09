@@ -3,7 +3,14 @@ import { useSelector, useDispatch } from "react-redux";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { CLEAR_LIST } from "../redux/constants/common";
 
-function InfiniteScrollList({ infiniteRender, limit = 10, fetchItems }) {
+function InfiniteScrollList({
+  infiniteRender,
+  limit = 10,
+  fetchItems,
+  search = "",
+  user = false,
+}) {
+ 
   const dispatch = useDispatch();
   const { common } = useSelector((state) => state);
 
@@ -11,22 +18,22 @@ function InfiniteScrollList({ infiniteRender, limit = 10, fetchItems }) {
 
   const initialFetchRef = useRef(false); // Reference to the initial fetch for strict mode
 
-// Clear the list when the component mounts for switching tabs
+  // Clear the list when the component mounts for switching tabs
   useEffect(() => {
-    dispatch({ type: CLEAR_LIST });         
+    dispatch({ type: CLEAR_LIST });
   }, []);
 
-// Fetch items when page changes coz redux state is not updated syhronously
+  // Fetch items when page changes coz redux state is not updated syhronously
   useEffect(() => {
     if (!initialFetchRef.current && page === 1) {
-      dispatch(fetchItems(page, limit));
+      dispatch(fetchItems({page, limit, search, user}));
       initialFetchRef.current = true;
     }
-  }, [page]);                               
+  }, [page]);
 
   const fetchMoreData = () => {
     if (!loading && hasMore) {
-      dispatch(fetchItems(page, limit));
+      dispatch(fetchItems({page, limit, search, user}));
     }
   };
 
@@ -36,8 +43,18 @@ function InfiniteScrollList({ infiniteRender, limit = 10, fetchItems }) {
         dataLength={list.length}
         next={fetchMoreData}
         hasMore={hasMore}
-        loader={<h4>Loading...</h4>}
-        endMessage={<p style={{ textAlign: "center" }}>No more data to load</p>}
+        loader={<div style={{ textAlign: "center" }}>Loading...</div>}
+        endMessage={
+          <>
+            {list.length === 0 ? (
+              <p style={{ textAlign: "center" }}>No data found.</p>
+            ) : (
+              <p style={{ textAlign: "center", marginTop: "20px" }}>
+                No more data to load.
+              </p>
+            )}
+          </>
+        }
       >
         {list.map((item) => (
           <div key={item.id} className="item">

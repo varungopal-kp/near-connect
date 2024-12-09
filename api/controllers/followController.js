@@ -4,6 +4,8 @@ const Friend = require("../models/friend");
 const responseHelper = require("../helpers/responseHelper");
 const userActivityListener = require("../helpers/Events/userActivityListener");
 const mongoose = require("mongoose");
+const User = require("../models/user");
+const { convertToObjectId } = require("../helpers/mongoUtils");
 
 exports.getFollowers = async (req, res) => {
   try {
@@ -222,7 +224,6 @@ exports.confirmFollowRequest = async (req, res) => {
       );
     }
   } catch (error) {
-    console.log(error);
     return responseHelper.error(res, error, "Failed to confirm request", 500);
   } finally {
     session.endSession();
@@ -265,5 +266,185 @@ exports.removeFriend = async (req, res) => {
     );
   } catch (error) {
     return responseHelper.error(res, error, "Failed to remove friend", 500);
+  }
+};
+exports.getFollowUserDetails = async (req, res) => {
+  try {
+    const { userId } = req.user;
+    const { username } = req.params;
+    console.log(userId);
+    const user = await User.aggregate([
+      {
+        $match: {
+          username: username,
+        },
+      },
+      {
+        $lookup: {
+          from: "images",
+          localField: "_id",
+          foreignField: "user",
+          as: "images",
+        },
+      },
+      {
+        $lookup: {
+          from: "followers",
+          localField: "_id",
+          foreignField: "user",
+          as: "followers",
+        },
+      },
+
+      {
+        $lookup: {
+          from: "followers",
+          localField: "_id",
+          foreignField: "follower",
+          as: "following",
+        },
+      },
+
+      {
+        $lookup: {
+          from: "followrequests",
+          localField: "_id",
+          foreignField: "requestUser",
+          as: "requestedUsers",
+        },
+      },
+
+      {
+        $lookup: {
+          from: "friends",
+          let: { userId: "$_id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $or: [
+                    { $eq: ["$user", "$$userId"] }, // Match if `user` equals `_id`
+                    { $eq: ["$friend", "$$userId"] }, // Match if `friend` equals `_id`
+                  ],
+                },
+              },
+            },
+          ],
+          as: "friends",
+        },
+      },
+      {
+        $addFields: {
+          userRelation: {
+            $cond: [
+              {
+                $gt: [
+                  {
+                    $size: {
+                      $filter: {
+                        input: "$friends",
+                        as: "friend",
+                        cond: {
+                          $or: [
+                            {
+                              $eq: ["$$friend.user", convertToObjectId(userId)],
+                            }, // Check if `req.user._id` matches `user`
+                            {
+                              $eq: [
+                                "$$friend.friend",
+                                convertToObjectId(userId),
+                              ],
+                            }, // Check if `req.user._id` matches `friend`
+                          ],
+                        },
+                      },
+                    },
+                  },
+                  0,
+                ],
+              },
+              "friends", // If there is a match, relation is `friends`
+              {
+                $cond: [
+                  {
+                    $gt: [
+                      {
+                        $size: {
+                          $filter: {
+                            input: "$following",
+                            as: "following",
+                            cond: {
+                              $eq: [
+                                "$$following.user",
+                                convertToObjectId(userId),
+                              ],
+                            },
+                          },
+                        },
+                      },
+                      0,
+                    ],
+                  },
+                  "follower",
+                  {
+                    $cond: [
+                      {
+                        $gt: [
+                          {
+                            $size: {
+                              $filter: {
+                                input: "$requestedUsers",
+                                as: "requestedUsers",
+                                cond: {
+                                  $eq: [
+                                    "$$requestedUsers.user",
+                                    convertToObjectId(userId),
+                                  ],
+                                },
+                              },
+                            },
+                          },
+                          0,
+                        ],
+                      },
+                      "requested",
+                      "no relation",
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      },
+      {
+        $addFields: {
+          friendsCount: { $size: "$friends" }, // Add a field to count the number of friends
+        },
+      },
+      {
+        $addFields: {
+          followersCount: { $size: "$followers" }, // Add a field to count the number of followers
+        },
+      },
+      {
+        $project: {
+          password: 0,
+          recentActivity: 0,
+          fcmToken: 0,
+          friends: 0,
+          followers: 0,
+          following: 0,
+          requestedUsers: 0,
+        },
+      },
+    ]);
+    if (!user || user.length === 0) {
+      return responseHelper.error(res, null, "User not found", 404);
+    }
+    return responseHelper.success(res, user[0], "Success", 200);
+  } catch (error) {
+    console.log(error);
+    return responseHelper.error(res, error, "Failed to get user details", 500);
   }
 };

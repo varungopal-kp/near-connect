@@ -3,6 +3,9 @@ import {
   FETCH_ITEMS_FAILURE,
   FETCH_ITEMS_REQUEST,
   FETCH_ITEMS_SUCCESS,
+  GET_ACCOUNT_DETAILS_FAILURE,
+  GET_ACCOUNT_DETAILS_REQUEST,
+  GET_ACCOUNT_DETAILS_SUCCESS,
 } from "../constants/common";
 import {
   CONFIRM_FRIEND_FAILURE,
@@ -23,6 +26,9 @@ import {
   GET_FOLLOW_COUNT_REQUEST,
   GET_FOLLOW_COUNT_FAILURE,
   GET_FOLLOW_COUNT_SUCCESS,
+  GET_FOLLOW_USER_DETAIL_REQUEST,
+  GET_FOLLOW_USER_DETAIL_SUCCESS,
+  GET_FOLLOW_USER_DETAIL_FAILURE,
 } from "../constants/follow";
 
 export const getFollowers = (page, limit) => async (dispatch) => {
@@ -143,6 +149,18 @@ export const getFollowCount = () => async (dispatch) => {
   } catch (error) {
     const errMessage = error.response?.data?.message || "Something went wrong";
     dispatch({ type: GET_FOLLOW_COUNT_FAILURE, payload: error.message });
+    return Promise.reject(errMessage);
+  }
+};
+export const getFollowUserDetails = (user) => async (dispatch) => {
+  try {
+    dispatch({ type: GET_FOLLOW_USER_DETAIL_REQUEST });
+    const response = await axios.get(`/follow/${user}`);
+    dispatch({ type: GET_FOLLOW_USER_DETAIL_SUCCESS, payload: response });
+    return Promise.resolve(response);
+  } catch (error) {
+    const errMessage = error.response?.data?.message || "Something went wrong";
+    dispatch({ type: GET_FOLLOW_USER_DETAIL_FAILURE, payload: error.message });
     return Promise.reject(errMessage);
   }
 };

@@ -4,7 +4,8 @@ const userController = require('../controllers/userController');
 
 
 router.post('/', userController.createUser);      
-router.get('/', userController.getAllUsers);      
+router.get('/', userController.getAllUsers);
+router.get('/search', userController.searchUsers);      
 router.get('/profile', userController.getUserProfile);      
 router.get('/:id', userController.getUserById);  
 router.put('/:id', userController.updateUser);   

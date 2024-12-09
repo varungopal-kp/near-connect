@@ -11,4 +11,6 @@ router.post("/confirm-request/:id", followController.confirmFollowRequest);
 router.get("/counts", followController.getCounts);
 router.delete("/remove-friend/:id", followController.removeFriend);
 
+router.get("/:username", followController.getFollowUserDetails);
+
 module.exports = router;

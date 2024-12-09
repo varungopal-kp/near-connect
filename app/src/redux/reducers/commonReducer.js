@@ -1,4 +1,9 @@
 import {
+  GET_FOLLOW_USER_DETAIL_FAILURE,
+  GET_FOLLOW_USER_DETAIL_REQUEST,
+  GET_FOLLOW_USER_DETAIL_SUCCESS,
+} from "../constants/follow";
+import {
   FETCH_ITEMS_REQUEST,
   FETCH_ITEMS_SUCCESS,
   FETCH_ITEMS_FAILURE,
@@ -25,7 +30,9 @@ const initialState = {
   totalPages: 1,
   hasMore: false,
   totalNotifications: 0,
-  totalChats: 0
+  totalChats: 0,
+  accountDetails: {},
+  layout: "1",
 };
 
 const itemsReducer = (state = initialState, action) => {
@@ -37,7 +44,6 @@ const itemsReducer = (state = initialState, action) => {
         error: null,
       };
     case FETCH_ITEMS_SUCCESS:
-      
       return {
         ...state,
         loading: false,
@@ -106,33 +112,53 @@ const itemsReducer = (state = initialState, action) => {
         hasMore: false,
       };
 
-      case GET_DASHBOARD_COUNT_REQUEST:
+    case GET_DASHBOARD_COUNT_REQUEST:
       return {
         ...state,
         loading: true,
         error: null,
         totalNotifications: 0,
-        totalChats: 0
-      }
-      case GET_DASHBOARD_COUNT_SUCCESS:
+        totalChats: 0,
+      };
+    case GET_DASHBOARD_COUNT_SUCCESS:
       return {
         ...state,
         loading: false,
         error: null,
         totalNotifications: action.payload.notifications || 0,
-        totalChats: action.payload.chats || 0
-      }
-      case GET_DASHBOARD_COUNT_FAILURE:
+        totalChats: action.payload.chats || 0,
+      };
+    case GET_DASHBOARD_COUNT_FAILURE:
       return {
         ...state,
         loading: false,
-        error: action.payload
-      }
-      case UPDATE_DASHBOARD_COUNT:
+        error: action.payload,
+      };
+    case UPDATE_DASHBOARD_COUNT:
       return {
         ...state,
-        ...action.payload
-      }
+        ...action.payload,
+      };
+    case GET_FOLLOW_USER_DETAIL_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+        accountDetails: {},
+      };
+    case GET_FOLLOW_USER_DETAIL_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+        accountDetails: action.payload?.data || {},
+      };
+    case GET_FOLLOW_USER_DETAIL_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
     default:
       return state;
   }

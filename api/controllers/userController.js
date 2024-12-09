@@ -157,3 +157,146 @@ exports.deleteUser = async (req, res) => {
     return responseHelper.error(res, error, "Error deleting user", 500);
   }
 };
+
+// Search user by name or username
+exports.searchUsers = async (req, res) => {
+  try {
+    const { userId } = req.user;
+    const searchValue = req.query.search;
+    const limit = parseInt(req.query.limit) || 10;
+    const page = parseInt(req.query.page) || 1;
+    const skip = (page - 1) * limit;
+
+    if (!searchValue) {
+      return responseHelper.error(res, null, "Search value is required", 400);
+    }
+
+    const list = await User.aggregate([
+      {
+        $match: {
+          $or: [
+            { name: { $regex: searchValue, $options: "i" } },
+            { username: { $regex: searchValue, $options: "i" } },
+          ],
+          _id: { $ne: convertToObjectId(userId) },
+        },
+      },
+      {
+        $lookup: {
+          from: "followers", // Collection name for followers
+          let: { userId: "$_id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ["$user", convertToObjectId(userId)] },
+                    { $eq: ["$follower", "$$userId"] },
+                  ],
+                },
+              },
+            },
+          ],
+          as: "followerRelation",
+        },
+      },
+      {
+        $lookup: {
+          from: "friends", // Collection name for friends
+          let: { userId: "$_id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ["$user", convertToObjectId(userId)] },
+                    { $eq: ["$friend", "$$userId"] },
+                  ],
+                },
+              },
+            },
+          ],
+          as: "friendRelation",
+        },
+      },
+      {
+        $lookup: {
+          from: "followrequests", // Collection name for requests
+          let: { userId: "$_id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ["$user", convertToObjectId(userId)] },
+                    { $eq: ["$requestUser", "$$userId"] },
+                  ],
+                },
+              },
+            },
+          ],
+          as: "requestRelation",
+        },
+      },
+      {
+        $addFields: {
+          userRelation: {
+            $cond: [
+              { $gt: [{ $size: "$friendRelation" }, 0] },
+              "friend",
+              {
+                $cond: [
+                  { $gt: [{ $size: "$followerRelation" }, 0] },
+                  "follower",
+                  {
+                    $cond: [
+                      { $gt: [{ $size: "$requestRelation" }, 0] },
+                      "requestUser",
+                      "no relation",
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      },
+      {
+        $project: {
+          friendRelation: 0,
+          followerRelation: 0,
+          requestRelation: 0,
+        },
+      }, // Exclude intermediate fields
+      { $skip: skip },
+      { $limit: limit },
+    ]);
+
+    const totalItems = await User.countDocuments({
+      $or: [
+        { name: { $regex: searchValue, $options: "i" } },
+        { username: { $regex: searchValue, $options: "i" } },
+      ],
+      _id: { $ne: convertToObjectId(userId) },
+    });
+
+    const totalPages = Math.ceil(totalItems / limit);
+    const hasMore = skip + limit < totalItems;
+
+    return responseHelper.success(
+      res,
+      {
+        list,
+        totalPages,
+        totalItems,
+        currentPage: page,
+        hasMore,
+      },
+      "Successful",
+      200
+    );
+  } catch (error) {
+    console.log(error);
+    return responseHelper.error(res, error, "Error searching users", 500);
+  }
+};

@@ -6,11 +6,15 @@ import LoginPage from "./containers/LoginPage/index";
 import store from "./redux/store";
 
 import Layout from "./components/Layouts/index";
+import Layout2 from "./components/Layouts/index2";
 import Notification from "./components/Notifications/index";
 import HomePage from "./containers/HomePage/index";
 import FriendsPage from "./containers/FriendsPage/index";
 import FollowerPage from "./containers/FollowerPage/index";
 import NotificationPage from "./containers/NotificationPage/index";
+import SearchPage from "./containers/SearchPage/index";
+import PortraitPage from "./containers/PortraitPage/index";
+import Loader from "./components/Loader/index";
 
 function App() {
   return (
@@ -49,9 +53,26 @@ function App() {
               </Layout>
             }
           />
+          <Route
+            path="/search"
+            element={
+              <Layout layout={2}>
+                <SearchPage />
+              </Layout>
+            }
+          />
+          <Route
+            path="/account/:username"
+            element={
+              <Layout2>
+                <PortraitPage />
+              </Layout2>
+            }
+          />
           <Route path="/login" element={<LoginPage />} />
         </Routes>
       </div>
+      <Loader />
       <Notification />
     </Provider>
   );

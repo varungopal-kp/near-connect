@@ -28,6 +28,10 @@ const UserSchema = new Schema(
     password: { type: String, required: true },
     pic: { type: String },
     recentActivity: { type: [UserActivitySchema], default: [] },
+    location: {
+      city: { type: String },
+      country: { type: String },
+    },
     fcmToken: { type: String },
   },
   { timestamps: true } // Automatically adds createdAt and updatedAt fields

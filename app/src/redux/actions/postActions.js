@@ -19,36 +19,39 @@ import {
   UPDATE_POST_LIKE_SUCCESS,
 } from "../constants/posts";
 
-export const fetchItems = (page, limit) => async (dispatch) => {
-  dispatch({ type: FETCH_ITEMS_REQUEST });
+export const fetchItems =
+  ({ page, limit, user = false }) =>
+  async (dispatch) => {
+    dispatch({ type: FETCH_ITEMS_REQUEST });
 
-  try {
-    const response = await axios.get("/posts/list", {
-      params: { page, limit },
-    });
-
-    if (response.data.data?.list) {
-      response.data.data.list.forEach((item) => {
-        item.showComments = false;
-        item.isLiked = item.postinteractions[0]?.like || false;
-        item.isDisliked = item.postinteractions[0]?.dislike || false;
+    try {
+      const response = await axios.get("/posts/list", {
+        params: { page, limit, user },
       });
-    }
 
-    dispatch({
-      type: FETCH_ITEMS_SUCCESS,
-      payload: { ...response.data.data },
-    });
-    return Promise.resolve(response.data);
-  } catch (error) {
-    const errMessage = error.response?.data?.message || "Something went wrong";
-    dispatch({
-      type: FETCH_ITEMS_FAILURE,
-      error: error.message,
-    });
-    return Promise.reject(errMessage);
-  }
-};
+      if (response.data.data?.list) {
+        response.data.data.list.forEach((item) => {
+          item.showComments = false;
+          item.isLiked = item.postinteractions[0]?.like || false;
+          item.isDisliked = item.postinteractions[0]?.dislike || false;
+        });
+      }
+
+      dispatch({
+        type: FETCH_ITEMS_SUCCESS,
+        payload: { ...response.data.data },
+      });
+      return Promise.resolve(response.data);
+    } catch (error) {
+      const errMessage =
+        error.response?.data?.message || "Something went wrong";
+      dispatch({
+        type: FETCH_ITEMS_FAILURE,
+        error: error.message,
+      });
+      return Promise.reject(errMessage);
+    }
+  };
 
 export const getPosts = () => async (dispatch) => {
   try {
