@@ -4,7 +4,7 @@ import Header from "./Header";
 import LeftSidebar from "./LeftSidebar";
 import RightSidebar from "./RightSidebar";
 import Footer from "./Footer";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { getProfile } from "../../redux/actions/commonActions";
 import { useParams } from "react-router-dom";
 import { getFollowUserDetails } from "../../redux/actions/followActions";
@@ -19,6 +19,7 @@ export default function Index({ children }) {
   const [profile, setProfile] = React.useState({});
 
   useEffect(() => {
+    dispatch(getProfile());
     dispatch(getFollowUserDetails(username))
       .then((res) => {
         console.log(res.data);
@@ -46,7 +47,7 @@ export default function Index({ children }) {
       {_layout !== 0 && profile?._id && (
         <>
           {/* Header and Navigation */}
-          <Header layout={_layout} />
+          <Header layout={_layout} profileData={profile}/>
           <section>
             <div className="gap gray-bg">
               <div className="container-fluid">
@@ -62,6 +63,7 @@ export default function Index({ children }) {
                         {React.cloneElement(children, {
                           accountId: profile?._id,
                           userRelation: profile?.userRelation,
+                          layout: _layout,
                         })}
                       </>
 

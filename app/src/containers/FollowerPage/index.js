@@ -5,7 +5,7 @@ import { Tab, Nav } from "react-bootstrap";
 import { useDispatch } from "react-redux";
 import { getFollowCount } from "../../redux/actions/followActions";
 
-export default function Index() {
+export default function Index(props) {
   const [key, setKey] = useState("followers");
 
   const [followersCount, setFollowersCount] = useState(0);
@@ -14,7 +14,7 @@ export default function Index() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(getFollowCount()).then((res) => {
+    dispatch(getFollowCount(props.accountId)).then((res) => {
       if (res.data) {
         const followersCount = res.data.data?.followersCount || 0;
         const followRequestCount = res.data.data?.followRequestCount || 0;
@@ -32,7 +32,7 @@ export default function Index() {
             <Nav variant="tabs">
               <Nav.Item>
                 <Nav.Link eventKey="followers" style={{ float: "left" }}>
-                  My Followers
+                   Followers
                 </Nav.Link>
                 <span style={{ float: "right" }}>{followersCount}</span>
               </Nav.Item>
@@ -47,13 +47,17 @@ export default function Index() {
             <Tab.Content>
               <Tab.Pane eventKey="followers">
                 {key === "followers" && (
-                  <Followers setFollowersCount={setFollowersCount} />
+                  <Followers
+                    setFollowersCount={setFollowersCount}
+                    accountId={props.accountId}
+                  />
                 )}
               </Tab.Pane>
               <Tab.Pane eventKey="followersRequest">
                 {key === "followersRequest" && (
                   <FollowerRequest
-                  setFollowRequestCount={setFollowRequestCount}
+                    setFollowRequestCount={setFollowRequestCount}
+                    accountId={props.accountId}
                   />
                 )}
               </Tab.Pane>

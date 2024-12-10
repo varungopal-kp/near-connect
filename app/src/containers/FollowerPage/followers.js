@@ -112,6 +112,7 @@ export default function Followers(props) {
           infiniteRender={infiniteRender}
           limit={10}
           fetchItems={getFollowers}
+          user={props.accountId}
         />
       </ul>
       {/* <div class="lodmore">

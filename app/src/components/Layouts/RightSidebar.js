@@ -1,7 +1,7 @@
 import React from "react";
 
 export default function RightSidebar(props) {
-  console.log(props.layout);
+ 
   return (
     <div className="col-lg-3">
       <aside className="sidebar static">

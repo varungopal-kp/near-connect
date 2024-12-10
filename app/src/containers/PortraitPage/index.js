@@ -8,7 +8,6 @@ export default function Index(props) {
   const [page, setPage] = React.useState(0);
 
   useEffect(() => {
-    console.log(props);
     if (props.userRelation === "friends") {
       setPage(2);
     } else {

@@ -88,6 +88,7 @@ exports.getUserProfile = async (req, res) => {
           name: { $first: "$name" },
           email: { $first: "$email" },
           pic: { $first: "$pic" },
+          username: { $first: "$username" },
           recentActivity: { $push: "$recentActivity" },
         },
       },
@@ -97,6 +98,7 @@ exports.getUserProfile = async (req, res) => {
           name: 1,
           email: 1,
           pic: 1,
+          username: 1,
           recentActivity: {
             $filter: {
               input: "$recentActivity",

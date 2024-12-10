@@ -7,6 +7,8 @@ const { convertToObjectId } = require("../helpers/mongoUtils");
 const mongoose = require("mongoose");
 const userActivityListener = require("../helpers/Events/userActivityListener");
 const { sendNotification } = require("../helpers/notificationHelper");
+const Photo = require("../models/photo");
+const Video = require("../models/video");
 
 // create a new post
 exports.createPost = async (req, res) => {
@@ -228,7 +230,7 @@ exports.list = async (req, res) => {
                 pic: 1,
               },
             },
-          ]
+          ],
         },
       },
 
@@ -303,6 +305,151 @@ exports.list = async (req, res) => {
       "Successfull",
       200
     );
+  } catch (error) {
+    console.log(error);
+    return responseHelper.error(res, error, "Error", 500);
+  }
+};
+exports.getPhotos = async (req, res) => {
+  try {
+    const { userId } = req.user;
+    const limit = parseInt(req.query.limit) || 10;
+    const page = parseInt(req.query.page) || 1;
+    const skip = (page - 1) * limit;
+
+    let user = userId;
+    if (req.query.user) user = req.query.user;
+
+    const list = await Photo.find({ user: user })
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .skip(skip);
+
+    const totalItems = await Photo.countDocuments({ user: user });
+    const totalPages = Math.ceil(totalItems / limit);
+    const hasMore = page < totalPages;
+
+    return responseHelper.success(
+      res,
+      {
+        list,
+        totalPages,
+        totalItems,
+        currentPage: page,
+        hasMore,
+      },
+      "Successfull",
+      200
+    );
+  } catch (error) {
+    console.log(error);
+    return responseHelper.error(res, error, "Error", 500);
+  }
+};
+exports.getVideos = async (req, res) => {
+  try {
+    const { userId } = req.user;
+    const limit = parseInt(req.query.limit) || 10;
+    const page = parseInt(req.query.page) || 1;
+    const skip = (page - 1) * limit;
+
+    let user = userId;
+    if (req.query.user) user = req.query.user;
+
+    const list = await Video.find({ user: user })
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .skip(skip);
+
+    const totalItems = await Video.countDocuments({ user: user });
+    const totalPages = Math.ceil(totalItems / limit);
+    const hasMore = page < totalPages;
+
+    return responseHelper.success(
+      res,
+      {
+        list,
+        totalPages,
+        totalItems,
+        currentPage: page,
+        hasMore,
+      },
+      "Successfull",
+      200
+    );
+  } catch (error) {
+    console.log(error)
+    return responseHelper.error(res, error, "Error", 500);
+  }
+};
+
+exports.uploadPhoto = async (req, res) => {
+  try {
+    const { userId } = req.user;
+
+    const data = {
+      user: userId,
+    };
+
+    if (!req.file) {
+      return responseHelper.validationError(res, errors, "Invalid input data");
+    }
+
+    data.path = replaceFileUrl(req.file.resizedPath);
+    data.mimeType = req.file.mimetype;
+    data.fileSize = req.file.size;
+    data.fileName = req.file.originalname;
+    data.thumbnail = replaceFileUrl(req.file.thumbnailPath);
+    const photo = new Photo(data);
+    await photo.save();
+
+    return responseHelper.success(res, photo, "Successfull", 200);
+  } catch (error) {
+    console.log(error);
+    return responseHelper.error(res, error, "Error", 500);
+  }
+};
+exports.uploadVideo = async (req, res) => {
+  try {
+    const { userId } = req.user;
+
+    const data = {
+      user: userId,
+    };
+
+    if (!req.file) {
+      return responseHelper.validationError(res, errors, "Invalid input data");
+    }
+console.log(req.file)
+    data.path = replaceFileUrl(req.file.path);
+    data.mimeType = req.file.mimetype;
+    data.fileSize = req.file.size;
+    data.fileName = req.file.originalname;
+
+    const video = new Video(data);
+    await video.save();
+
+    return responseHelper.success(res, video, "Successfull", 200);
+  } catch (error) {
+    console.log(error);
+    return responseHelper.error(res, error, "Error", 500);
+  }
+};
+exports.deletePhoto = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const photo = await Photo.findByIdAndDelete(id);
+    return responseHelper.success(res, photo, "Successfull", 200);
+  } catch (error) {
+    console.log(error);
+    return responseHelper.error(res, error, "Error", 500);
+  }
+};
+exports.deleteVideo = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const video = await Video.findByIdAndDelete(id);
+    return responseHelper.success(res, video, "Successfull", 200);
   } catch (error) {
     console.log(error);
     return responseHelper.error(res, error, "Error", 500);

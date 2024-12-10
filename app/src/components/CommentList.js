@@ -27,6 +27,7 @@ export default function Comments(props) {
   const [page, setPage] = useState(1);
   const limit = 5;
 
+  // comments is empty when strict mode calls twice
   useEffect(() => {
     if (props.postId && page) {
       handleGetComments(page, limit, comments);
@@ -154,7 +155,7 @@ export default function Comments(props) {
       <ul class="we-comet">
         <li class="post-comment">
           <div class="comet-avatar">
-            <ProfilePic profile style={{ width: "40px" , height: "40px"}}/>
+            <ProfilePic profile style={{ width: "40px", height: "40px" }} />
           </div>
           <div class="post-comt-box">
             <Formik
@@ -193,7 +194,10 @@ export default function Comments(props) {
             <>
               <li key={index}>
                 <div class="comet-avatar">
-                  <ProfilePic url={item.user?.pic} style={{ width: "40px" , height: "40px"}}/>
+                  <ProfilePic
+                    url={item.user?.pic}
+                    style={{ width: "40px", height: "40px" }}
+                  />
                 </div>
                 <div class="we-comment">
                   <div class="coment-head">
@@ -227,7 +231,10 @@ export default function Comments(props) {
                 <ul>
                   <li class="post-comment">
                     <div class="comet-avatar">
-                      <ProfilePic profile style={{ width: "40px" , height: "40px"}}/>
+                      <ProfilePic
+                        profile
+                        style={{ width: "40px", height: "40px" }}
+                      />
                     </div>
                     <div class="post-comt-box">
                       <Formik

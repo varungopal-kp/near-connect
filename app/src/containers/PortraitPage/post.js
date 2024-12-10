@@ -18,14 +18,14 @@ export default function Post(props) {
     const likeData = {
       post: post._id,
     };
-    
+
     if (key === "like") {
-      if(updateItem.isLiked){
-        updateItem.likes = updateItem.likes - 1
-      }else{
-        updateItem.likes = updateItem.likes + 1
-        if(updateItem.isDisliked){
-          updateItem.dislikes = updateItem.dislikes - 1
+      if (updateItem.isLiked) {
+        updateItem.likes = updateItem.likes - 1;
+      } else {
+        updateItem.likes = updateItem.likes + 1;
+        if (updateItem.isDisliked) {
+          updateItem.dislikes = updateItem.dislikes - 1;
         }
       }
       const value = !updateItem.isLiked;
@@ -35,12 +35,12 @@ export default function Post(props) {
       likeData.like = value;
       likeData.dislike = false;
     } else if (key === "dislike") {
-      if(updateItem.isDisliked){
-        updateItem.dislikes = updateItem.dislikes - 1
-      }else{
-        updateItem.dislikes = updateItem.dislikes + 1
-        if(updateItem.isLiked){
-          updateItem.likes = updateItem.likes - 1
+      if (updateItem.isDisliked) {
+        updateItem.dislikes = updateItem.dislikes - 1;
+      } else {
+        updateItem.dislikes = updateItem.dislikes + 1;
+        if (updateItem.isLiked) {
+          updateItem.likes = updateItem.likes - 1;
         }
       }
       const value = !updateItem.isDisliked;
@@ -70,29 +70,6 @@ export default function Post(props) {
                 </a>
               </ins>
               <span>{moment(item?.createdAt).fromNow() || ""}</span>
-              {item.canModify && (
-                <a
-                  href=""
-                  className="delete-post"
-                  title="Reply"
-                  style={{ float: "right", fontSize: "12px" }}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    swal({
-                      title: "Are you sure?",
-                      icon: "warning",
-                      buttons: true,
-                      dangerMode: true,
-                    }).then((willDelete) => {
-                      if (willDelete) {
-                        // handlePostDelete(item._id);
-                      }
-                    });
-                  }}
-                >
-                  Remove
-                </a>
-              )}
             </div>
             <div className="description">
               <p>{item.content}</p>
@@ -121,7 +98,7 @@ export default function Post(props) {
                     onClick={() => {
                       const updateItem = { ...item };
                       updateItem.showComments = !updateItem.showComments;
-                      //  dispatch({ type: UPDATE_ITEMS, payload: updateItem });
+                      dispatch({ type: UPDATE_ITEMS, payload: updateItem });
                     }}
                   >
                     <span
@@ -141,7 +118,7 @@ export default function Post(props) {
                   </li>
                   <li
                     onClick={() => {
-                        updateLikeDislike(item, "like");
+                      updateLikeDislike(item, "like");
                     }}
                   >
                     <span className="like" data-toggle="tooltip" title="like">
@@ -156,7 +133,7 @@ export default function Post(props) {
                   </li>
                   <li
                     onClick={() => {
-                         updateLikeDislike(item, "dislike");
+                      updateLikeDislike(item, "dislike");
                     }}
                   >
                     <span

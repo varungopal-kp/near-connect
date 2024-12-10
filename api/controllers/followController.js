@@ -14,13 +14,15 @@ exports.getFollowers = async (req, res) => {
     const skip = (page - 1) * limit;
 
     const { userId } = req.user;
+    let user = userId;
+    if (req.query.user) user = req.query.user;
 
-    const followers = await Follower.find({ user: userId })
-      .populate("follower", ["name", "email", "pic"])
+    const followers = await Follower.find({ user: user })
+      .populate("follower", ["name", "email", "pic", "username"])
       .limit(limit)
       .skip(skip);
 
-    const total = await Follower.countDocuments({ user: userId });
+    const total = await Follower.countDocuments({ user: user });
 
     const totalPages = Math.ceil(total / limit);
 
@@ -45,16 +47,19 @@ exports.getFollowRequests = async (req, res) => {
 
     const { userId } = req.user;
 
+    let user = userId;
+    if (req.query.user) user = req.query.user;
+
     const followRequest = await FollowRequest.find({
-      user: userId,
+      user: user,
       status: "pending",
     })
-      .populate("requestUser", ["name", "email", "pic"])
+      .populate("requestUser", ["name", "email", "pic", "username"])
       .limit(limit)
       .skip(skip);
 
     const total = await FollowRequest.countDocuments({
-      user: userId,
+      user: user,
       status: "pending",
     });
 
@@ -85,14 +90,18 @@ exports.getFriends = async (req, res) => {
     const skip = (page - 1) * limit;
 
     const { userId } = req.user;
+    let user = userId;
+    if (req.query.user) user = req.query.user;
 
-    const friends = await Friend.find({ user: userId })
-      .populate("friend", ["name", "email", "pic"])
+    const friends = await Friend.find({
+      user: user,
+    })
+      .populate("friend", ["name", "email", "pic", "username"])
       .limit(limit)
       .skip(skip);
 
     const total = await Friend.countDocuments({
-      user: userId,
+      user: user,
     });
 
     const totalPages = Math.ceil(total / limit);
@@ -144,6 +153,10 @@ exports.confirmFriend = async (req, res) => {
         {
           user: userId,
           friend: req.params.id,
+        },
+        {
+          user: req.params.id,
+          friend: userId,
         },
       ],
       { session }
@@ -233,14 +246,17 @@ exports.confirmFollowRequest = async (req, res) => {
 exports.getCounts = async (req, res) => {
   try {
     const { userId } = req.user;
+    let user = userId;
+    if (req.query.user) user = req.query.user;
+
     const followersCount = await Follower.countDocuments({
-      user: userId,
+      user: user,
     });
     const followRequestCount = await FollowRequest.countDocuments({
-      user: userId,
+      user: user,
       status: "pending",
     });
-    const friendsCount = await Friend.countDocuments({ user: userId });
+    const friendsCount = await Friend.countDocuments({ user: user });
     return responseHelper.success(
       res,
       { followersCount, followRequestCount, friendsCount },
@@ -268,11 +284,13 @@ exports.removeFriend = async (req, res) => {
     return responseHelper.error(res, error, "Failed to remove friend", 500);
   }
 };
-exports.getFollowUserDetails = async (req, res) => {
+
+// old schema with on entry per user
+exports.getFollowUserDetails2 = async (req, res) => {
   try {
     const { userId } = req.user;
     const { username } = req.params;
-    console.log(userId);
+
     const user = await User.aggregate([
       {
         $match: {
@@ -356,6 +374,166 @@ exports.getFollowUserDetails = async (req, res) => {
                               ],
                             }, // Check if `req.user._id` matches `friend`
                           ],
+                        },
+                      },
+                    },
+                  },
+                  0,
+                ],
+              },
+              "friends", // If there is a match, relation is `friends`
+              {
+                $cond: [
+                  {
+                    $gt: [
+                      {
+                        $size: {
+                          $filter: {
+                            input: "$following",
+                            as: "following",
+                            cond: {
+                              $eq: [
+                                "$$following.user",
+                                convertToObjectId(userId),
+                              ],
+                            },
+                          },
+                        },
+                      },
+                      0,
+                    ],
+                  },
+                  "follower",
+                  {
+                    $cond: [
+                      {
+                        $gt: [
+                          {
+                            $size: {
+                              $filter: {
+                                input: "$requestedUsers",
+                                as: "requestedUsers",
+                                cond: {
+                                  $eq: [
+                                    "$$requestedUsers.user",
+                                    convertToObjectId(userId),
+                                  ],
+                                },
+                              },
+                            },
+                          },
+                          0,
+                        ],
+                      },
+                      "requested",
+                      "no relation",
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      },
+      {
+        $addFields: {
+          friendsCount: { $size: "$friends" }, // Add a field to count the number of friends
+        },
+      },
+      {
+        $addFields: {
+          followersCount: { $size: "$followers" }, // Add a field to count the number of followers
+        },
+      },
+      {
+        $project: {
+          password: 0,
+          recentActivity: 0,
+          fcmToken: 0,
+          friends: 0,
+          followers: 0,
+          following: 0,
+          requestedUsers: 0,
+        },
+      },
+    ]);
+    if (!user || user.length === 0) {
+      return responseHelper.error(res, null, "User not found", 404);
+    }
+    return responseHelper.success(res, user[0], "Success", 200);
+  } catch (error) {
+    console.log(error);
+    return responseHelper.error(res, error, "Failed to get user details", 500);
+  }
+};
+
+exports.getFollowUserDetails = async (req, res) => {
+  try {
+    const { userId } = req.user;
+    const { username } = req.params;
+
+    const user = await User.aggregate([
+      {
+        $match: {
+          username: username,
+        },
+      },
+      {
+        $lookup: {
+          from: "images",
+          localField: "_id",
+          foreignField: "user",
+          as: "images",
+        },
+      },
+      {
+        $lookup: {
+          from: "followers",
+          localField: "_id",
+          foreignField: "user",
+          as: "followers",
+        },
+      },
+
+      {
+        $lookup: {
+          from: "followers",
+          localField: "_id",
+          foreignField: "follower",
+          as: "following",
+        },
+      },
+
+      {
+        $lookup: {
+          from: "followrequests",
+          localField: "_id",
+          foreignField: "requestUser",
+          as: "requestedUsers",
+        },
+      },
+
+      {
+        $lookup: {
+          from: "friends",
+          localField: "_id",
+          foreignField: "friend",
+          as: "friends",
+        },
+      },
+      {
+        $addFields: {
+          userRelation: {
+            $cond: [
+              {
+                $gt: [
+                  {
+                    $size: {
+                      $filter: {
+                        input: "$friends",
+                        as: "friend",
+                        cond: {
+                          $eq: ["$$friend.user", convertToObjectId(userId)],
                         },
                       },
                     },

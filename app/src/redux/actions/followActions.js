@@ -31,53 +31,71 @@ import {
   GET_FOLLOW_USER_DETAIL_FAILURE,
 } from "../constants/follow";
 
-export const getFollowers = (page, limit) => async (dispatch) => {
-  dispatch({ type: FETCH_ITEMS_REQUEST });
+export const getFollowers =
+  ({ page, limit, user = "" }) =>
+  async (dispatch) => {
+    dispatch({ type: FETCH_ITEMS_REQUEST });
 
-  try {
-    const response = await axios.get("/follow/followers", {
-      params: { page, limit },
-    });
+    try {
+      const response = await axios.get("/follow/followers", {
+        params: { page, limit, user },
+      });
 
-    dispatch({ type: FETCH_ITEMS_SUCCESS, payload: { ...response.data.data } });
-    return Promise.resolve(response.data);
-  } catch (error) {
-    const errMessage = error.response?.data?.message || "Something went wrong";
-    dispatch({ type: FETCH_ITEMS_FAILURE, payload: error.message });
-    return Promise.reject(errMessage);
-  }
-};
+      dispatch({
+        type: FETCH_ITEMS_SUCCESS,
+        payload: { ...response.data.data },
+      });
+      return Promise.resolve(response.data);
+    } catch (error) {
+      const errMessage =
+        error.response?.data?.message || "Something went wrong";
+      dispatch({ type: FETCH_ITEMS_FAILURE, payload: error.message });
+      return Promise.reject(errMessage);
+    }
+  };
 
-export const getPendingFollowers = (page, limit) => async (dispatch) => {
-  dispatch({ type: FETCH_ITEMS_REQUEST });
-  try {
-    const response = await axios.get("/follow/follow-requests", {
-      params: { page, limit },
-    });
-    dispatch({ type: FETCH_ITEMS_SUCCESS, payload: { ...response.data.data } });
-    return Promise.resolve(response.data);
-  } catch (error) {
-    const errMessage = error.response?.data?.message || "Something went wrong";
-    dispatch({ type: FETCH_ITEMS_FAILURE, payload: error.message });
-    return Promise.reject(errMessage);
-  }
-};
+export const getPendingFollowers =
+  ({ page, limit, user = "" }) =>
+  async (dispatch) => {
+    dispatch({ type: FETCH_ITEMS_REQUEST });
+    try {
+      const response = await axios.get("/follow/follow-requests", {
+        params: { page, limit, user },
+      });
+      dispatch({
+        type: FETCH_ITEMS_SUCCESS,
+        payload: { ...response.data.data },
+      });
+      return Promise.resolve(response.data);
+    } catch (error) {
+      const errMessage =
+        error.response?.data?.message || "Something went wrong";
+      dispatch({ type: FETCH_ITEMS_FAILURE, payload: error.message });
+      return Promise.reject(errMessage);
+    }
+  };
 
-export const getFriends = (page, limit) => async (dispatch) => {
-  dispatch({ type: FETCH_ITEMS_REQUEST });
-  try {
-    const response = await axios.get("/follow/friends", {
-      params: { page, limit },
-    });
-    dispatch({ type: FETCH_ITEMS_SUCCESS, payload: { ...response.data.data } });
-    return Promise.resolve(response.data);
-  } catch (error) {
-    console.log(error);
-    const errMessage = error.response?.data?.message || "Something went wrong";
-    dispatch({ type: FETCH_ITEMS_FAILURE, payload: error.message });
-    return Promise.reject(errMessage);
-  }
-};
+export const getFriends =
+  ({ page, limit, user = "" }) =>
+  async (dispatch) => {
+    dispatch({ type: FETCH_ITEMS_REQUEST });
+    try {
+      const response = await axios.get("/follow/friends", {
+        params: { page, limit, user },
+      });
+      dispatch({
+        type: FETCH_ITEMS_SUCCESS,
+        payload: { ...response.data.data },
+      });
+      return Promise.resolve(response.data);
+    } catch (error) {
+      console.log(error);
+      const errMessage =
+        error.response?.data?.message || "Something went wrong";
+      dispatch({ type: FETCH_ITEMS_FAILURE, payload: error.message });
+      return Promise.reject(errMessage);
+    }
+  };
 export const removeFollower = (id) => async (dispatch) => {
   try {
     dispatch({ type: REMOVE_FOLLOWER_REQUEST });
@@ -140,18 +158,21 @@ export const removeFriend = (id) => async (dispatch) => {
     return Promise.reject(errMessage);
   }
 };
-export const getFollowCount = () => async (dispatch) => {
-  try {
-    dispatch({ type: GET_FOLLOW_COUNT_REQUEST });
-    const response = await axios.get(`/follow/counts`);
-    dispatch({ type: GET_FOLLOW_COUNT_SUCCESS, payload: response });
-    return Promise.resolve(response);
-  } catch (error) {
-    const errMessage = error.response?.data?.message || "Something went wrong";
-    dispatch({ type: GET_FOLLOW_COUNT_FAILURE, payload: error.message });
-    return Promise.reject(errMessage);
-  }
-};
+export const getFollowCount =
+  (user = "") =>
+  async (dispatch) => {
+    try {
+      dispatch({ type: GET_FOLLOW_COUNT_REQUEST });
+      const response = await axios.get(`/follow/counts`, { params: { user } });
+      dispatch({ type: GET_FOLLOW_COUNT_SUCCESS, payload: response });
+      return Promise.resolve(response);
+    } catch (error) {
+      const errMessage =
+        error.response?.data?.message || "Something went wrong";
+      dispatch({ type: GET_FOLLOW_COUNT_FAILURE, payload: error.message });
+      return Promise.reject(errMessage);
+    }
+  };
 export const getFollowUserDetails = (user) => async (dispatch) => {
   try {
     dispatch({ type: GET_FOLLOW_USER_DETAIL_REQUEST });

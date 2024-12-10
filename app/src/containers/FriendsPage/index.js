@@ -8,12 +8,13 @@ import { toast } from "react-toastify";
 import { removeFriend } from "../../redux/actions/followActions";
 import swal from "sweetalert";
 
-export default function Index() {
+export default function Index(props) {
   const dispatch = useDispatch();
   const [friendsCount , setFriendsCount] = React.useState(0);
+   
 
   useEffect(() => {
-    dispatch(getFollowCount()).then((res) => {
+    dispatch(getFollowCount(props.accountId)).then((res) => {
       if (res.data) {
         const friendsCount = res.data.data?.friendsCount || 0;
         setFriendsCount(friendsCount);
@@ -50,7 +51,7 @@ export default function Index() {
                 {item.friend?.name}
               </a>
             </h4>
-            <span>{item.friend?.email}</span>
+            <span>{item.friend?.username}</span>
             <a
               href="#"
               title=""
@@ -85,7 +86,7 @@ export default function Index() {
           <ul class="nav nav-tabs">
             <li class="nav-item">
               <a class="active" href="#frends" data-toggle="tab">
-                My Friends
+                 Friends
               </a>{" "}
               <span>{friendsCount}</span>
             </li>
@@ -98,6 +99,7 @@ export default function Index() {
                   infiniteRender={infiniteRender}
                   limit={10}
                   fetchItems={getFriends}
+                  user={props.accountId}
                 />
               </ul>
             </div>

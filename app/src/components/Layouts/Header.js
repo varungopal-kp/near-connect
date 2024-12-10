@@ -51,7 +51,7 @@ export default function Header(props) {
     dispatch(logout());
     navigate("/login");
   };
-
+  
   return (
     <>
       {" "}
@@ -169,42 +169,46 @@ export default function Header(props) {
                   <div class="timeline-info">
                     <ul>
                       <li class="admin-name">
-                        <h5>Janice Griffith</h5>
-                        <span>@janice</span>
+                        <h5>{props.profileData?.name}</h5>
+                        <span>{props.profileData?.username}</span>
                       </li>
                       <li>
-                        <a
-                          class=""
-                          href="timeline-photos.html"
-                          title=""
-                          data-ripple=""
+                        <Link
+                          to={`${
+                            props.layout === 1
+                              ? "/photos"
+                              : `/account/${props.profileData?.username}/photos`
+                          }`}
                         >
                           Photos
-                        </a>
-                        <a
-                          class=""
-                          href="timeline-videos.html"
-                          title=""
-                          data-ripple=""
+                        </Link>
+                        <Link
+                          to={`${
+                            props.layout === 1
+                              ? "/videos"
+                              : `/account/${props.profileData?.username}/videos`
+                          }`}
                         >
                           Videos
-                        </a>
-                        <a
-                          class=""
-                          href="timeline-friends.html"
-                          title=""
-                          data-ripple=""
+                        </Link>
+                        <Link
+                          to={`${
+                            props.layout === 1
+                              ? "/friends"
+                              : `/account/${props.profileData?.username}/friends`
+                          }`}
                         >
                           Friends
-                        </a>
-                        <a
-                          class=""
-                          href="timeline-friends.html"
-                          title=""
-                          data-ripple=""
+                        </Link>
+                        <Link
+                          to={`${
+                            props.layout === 1
+                              ? "/followers"
+                              : `/account/${props.profileData?.username}/followers`
+                          }`}
                         >
                           Followers
-                        </a>
+                        </Link>
                       </li>
                     </ul>
                   </div>

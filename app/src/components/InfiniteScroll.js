@@ -8,7 +8,7 @@ function InfiniteScrollList({
   limit = 10,
   fetchItems,
   search = "",
-  user = false,
+  user = "",
 }) {
  
   const dispatch = useDispatch();

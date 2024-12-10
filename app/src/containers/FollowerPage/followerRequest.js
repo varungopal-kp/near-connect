@@ -113,6 +113,7 @@ export default function FollowerRequest(props) {
           infiniteRender={infiniteRender}
           limit={10}
           fetchItems={getPendingFollowers}
+          user={props.accountId}
         />
       </ul>
       {/* <button class="btn-view btn-load-more"></button> */}
