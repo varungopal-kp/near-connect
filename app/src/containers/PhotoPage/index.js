@@ -145,10 +145,12 @@ export default function Index(props) {
           {photos?.map((photo) => (
             <li>
               {props.layout !== 4 && (
-                <i
-                  class="fa fa-close"
-                  onClick={() => handleDeletePhoto(photo._id)}
-                ></i>
+                <div>
+                  <i
+                    class="fa fa-close"
+                    onClick={() => handleDeletePhoto(photo._id)}
+                  ></i>
+                </div>
               )}
               <a
                 class="strip"

@@ -9,6 +9,7 @@ const userActivityListener = require("../helpers/Events/userActivityListener");
 const { sendNotification } = require("../helpers/notificationHelper");
 const Photo = require("../models/photo");
 const Video = require("../models/video");
+const { generateThumbnail } = require("../helpers/fileUpload");
 
 // create a new post
 exports.createPost = async (req, res) => {
@@ -378,7 +379,7 @@ exports.getVideos = async (req, res) => {
       200
     );
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return responseHelper.error(res, error, "Error", 500);
   }
 };
@@ -420,12 +421,23 @@ exports.uploadVideo = async (req, res) => {
     if (!req.file) {
       return responseHelper.validationError(res, errors, "Invalid input data");
     }
-console.log(req.file)
+    console.log(req.file);
     data.path = replaceFileUrl(req.file.path);
     data.mimeType = req.file.mimetype;
     data.fileSize = req.file.size;
     data.fileName = req.file.originalname;
 
+    const thumbPath = req.file.destination + "/thumbnail";
+
+    const videoThumb = await generateThumbnail(req.file.path, thumbPath);
+
+    if (!videoThumb) {
+      return responseHelper.validationError(res, errors, "Invalid input data");
+    }
+
+    const thumbFullPath = thumbPath + "/" + videoThumb;
+
+    data.thumbnail = replaceFileUrl(thumbFullPath);
     const video = new Video(data);
     await video.save();
 

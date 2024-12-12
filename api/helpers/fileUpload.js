@@ -2,8 +2,13 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 const sharp = require("sharp");
+const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;    // Had issues with path coz of environment
+const ffmpeg = require('fluent-ffmpeg');
+ffmpeg.setFfmpegPath(ffmpegPath);
 
 const publicFolder = "uploads/";
+
+const rootPath = path.join(__dirname, "..");
 
 // Helper function to set up multer with a dynamic storage path
 const multerInstance = (folder) => {
@@ -49,8 +54,8 @@ const multerVideoInstance = (folder) => {
     // Set up storage engine with Multer
     const storage = multer.diskStorage({
       destination: (req, file, cb) => {
-        fs.mkdirSync(publicFolder + folder, { recursive: true }); 
-        cb(null, publicFolder + folder); 
+        fs.mkdirSync(publicFolder + folder, { recursive: true });
+        cb(null, publicFolder + folder);
       },
       filename: (req, file, cb) => {
         cb(null, `${Date.now()}_${file.originalname}`); // Rename the file
@@ -106,13 +111,8 @@ const resizePhoto =
 
       const { path: originalPath, filename } = req.file;
 
-      const thumbnailFolder = path.join(
-        __dirname,
-        "../",
-        destination,
-        "thumbnail"
-      );
-      const resizedFolder = path.join(__dirname, "../", destination, "resized");
+      const thumbnailFolder = path.join(rootPath, destination, "thumbnail");
+      const resizedFolder = path.join(rootPath, destination, "resized");
 
       if (!fs.existsSync(thumbnailFolder)) {
         fs.mkdirSync(thumbnailFolder, { recursive: true }); // Ensure all parent directories are created
@@ -138,7 +138,7 @@ const resizePhoto =
       req.file.resizedPath = resizedPath;
 
       // Delete the original file
-      
+
       // const unlinkPath = path.resolve(req.file.path); // unlink space issue
       // fs.unlink(unlinkPath, (err) => {
       //   //::Issue
@@ -154,8 +154,40 @@ const resizePhoto =
     }
   };
 
+function generateThumbnail(_videoPath, _outputPath, timestamp = "00:00:01") {
+
+  const videoPath = path.join(rootPath, _videoPath);
+  const outputPath = path.join(rootPath, _outputPath);
+
+  if (!fs.existsSync(outputPath)) {
+    fs.mkdirSync(outputPath, { recursive: true });
+  }
+
+  return new Promise((resolve, reject) => {
+    console.log("Generating thumbnail...");
+    const name = new Date().getTime() + ".png";
+    ffmpeg(videoPath)
+      .screenshots({
+        timestamps: [timestamp], // Time in the video to take the screenshot
+        filename:name, // Output filename
+        folder: outputPath, // Output directory
+        size: "320x240", // Thumbnail size
+      })
+      .on("end", () => {
+        console.log("Thumbnail created successfully");
+        resolve(name);
+      })
+      .on("error", (err) => {
+        console.log(err)
+        console.error("Error generating thumbnail:", err.message);
+        reject(err);
+      });
+  });
+}
+
 module.exports = {
   default: multerInstance,
   resizePhoto,
-  multerVideoInstance
+  multerVideoInstance,
+  generateThumbnail,
 };
