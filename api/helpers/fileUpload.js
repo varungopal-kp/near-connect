@@ -2,8 +2,8 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 const sharp = require("sharp");
-const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;    // Had issues with path coz of environment
-const ffmpeg = require('fluent-ffmpeg');
+const ffmpegPath = require("@ffmpeg-installer/ffmpeg").path; // Had issues with path coz of environment
+const ffmpeg = require("fluent-ffmpeg");
 ffmpeg.setFfmpegPath(ffmpegPath);
 
 const publicFolder = "uploads/";
@@ -155,7 +155,6 @@ const resizePhoto =
   };
 
 function generateThumbnail(_videoPath, _outputPath, timestamp = "00:00:01") {
-
   const videoPath = path.join(rootPath, _videoPath);
   const outputPath = path.join(rootPath, _outputPath);
 
@@ -169,7 +168,7 @@ function generateThumbnail(_videoPath, _outputPath, timestamp = "00:00:01") {
     ffmpeg(videoPath)
       .screenshots({
         timestamps: [timestamp], // Time in the video to take the screenshot
-        filename:name, // Output filename
+        filename: name, // Output filename
         folder: outputPath, // Output directory
         size: "320x240", // Thumbnail size
       })
@@ -178,7 +177,7 @@ function generateThumbnail(_videoPath, _outputPath, timestamp = "00:00:01") {
         resolve(name);
       })
       .on("error", (err) => {
-        console.log(err)
+        console.log(err);
         console.error("Error generating thumbnail:", err.message);
         reject(err);
       });
