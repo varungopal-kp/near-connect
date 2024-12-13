@@ -27,7 +27,7 @@ export default function Index({ children, layout }) {
   return (
     <div className="theme-layout">
       {/* Header and Navigation */}
-      <Header layout={_layout} profileData={common.profile?.data}/>
+      <Header layout={_layout} profileData={common.profile}/>
       <section>
         <div className="gap gray-bg">
           <div className="container-fluid">
@@ -36,7 +36,7 @@ export default function Index({ children, layout }) {
                 <div className="row" id="page-contents">
                   {/* Left Sidebar */}
                   <LeftSidebar
-                    profileData={common.profile?.data}
+                    profileData={common.profile}
                     layout={_layout}
                     accountDetails={common.accountDetails}
                   />

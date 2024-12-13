@@ -89,6 +89,7 @@ exports.getUserProfile = async (req, res) => {
           email: { $first: "$email" },
           pic: { $first: "$pic" },
           username: { $first: "$username" },
+          backgroundPic: { $first: "$backgroundPic" },
           recentActivity: { $push: "$recentActivity" },
         },
       },
@@ -98,6 +99,7 @@ exports.getUserProfile = async (req, res) => {
           name: 1,
           email: 1,
           pic: 1,
+          backgroundPic: 1,
           username: 1,
           recentActivity: {
             $filter: {
@@ -300,5 +302,30 @@ exports.searchUsers = async (req, res) => {
   } catch (error) {
     console.log(error);
     return responseHelper.error(res, error, "Error searching users", 500);
+  }
+};
+exports.updateProfileImage = async (req, res) => {
+  try {
+    const { userId } = req.user;
+    const { type } = req.body;
+    const user = await User.findById(userId);
+    if (!user) {
+      return responseHelper.error(res, null, "User not found", 404);
+    }
+    if (type === "profile") {
+      user.pic = req.file.path;
+    } else {
+      user.backgroundPic = req.file.path;
+    }
+    await user.save();
+    return responseHelper.success(res, user, "Profile image updated", 200);
+  } catch (error) {
+    console.log(error);
+    return responseHelper.error(
+      res,
+      error,
+      "Error updating profile image",
+      500
+    );
   }
 };

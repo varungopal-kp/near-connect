@@ -61,7 +61,7 @@ export default function Post(props) {
         <div className="user-post">
           <div className="friend-info">
             <figure>
-              <ProfilePic url={item.user?.pic} />
+              <ProfilePic url={item.user?.pic} defaultSize/>
             </figure>
             <div className="friend-name">
               <ins>

@@ -19,6 +19,9 @@ import {
   GET_DASHBOARD_COUNT_SUCCESS,
   GET_DASHBOARD_COUNT_FAILURE,
   UPDATE_DASHBOARD_COUNT,
+  UPDATE_PROFILE_IMAGE_SUCCESS,
+  UPDATE_PROFILE_IMAGE_REQUEST,
+  UPDATE_PROFILE_IMAGE_FAILURE,
 } from "./../constants/common";
 
 const initialState = {
@@ -94,7 +97,7 @@ const itemsReducer = (state = initialState, action) => {
         ...state,
         loading: false,
         error: null,
-        profile: action.payload,
+        profile: action.payload.data,
       };
     case GET_PROFILE_FAILURE:
       return {
@@ -154,6 +157,29 @@ const itemsReducer = (state = initialState, action) => {
         accountDetails: action.payload?.data || {},
       };
     case GET_FOLLOW_USER_DETAIL_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case UPDATE_PROFILE_IMAGE_REQUEST:
+      return {
+        ...state,
+        loading: true,
+      };
+    case UPDATE_PROFILE_IMAGE_SUCCESS:
+      
+      return {
+        ...state,
+        loading: false,
+        error: null,
+        profile: {
+          ...state.profile,
+          pic: action.payload.data?.pic,
+          backgroundPic: action.payload.data?.backgroundPic,
+        },
+      };
+    case UPDATE_PROFILE_IMAGE_FAILURE:
       return {
         ...state,
         loading: false,

@@ -6,10 +6,11 @@ export default function ProfilePic(props) {
     `${process.env.REACT_APP_URL}/images/propic.jpg`
   );
 
-  let picStyle = {
-    width: "60px",
-    height: "60px",
-  };
+  let picStyle = {};
+
+  if (props.defaultSize) {
+    picStyle = { width: "60px", height: "60px" };
+  }
   if (props.style) {
     picStyle = {
       ...picStyle,
@@ -27,11 +28,13 @@ export default function ProfilePic(props) {
 
   useEffect(() => {
     if (props.profile && profileData) {
-      if (profileData?.data?.pic) {
-        setImage(`${process.env.REACT_APP_BASE_URL}/${profileData.data.pic}`);
+      if (profileData?.pic) {
+        setImage(`${process.env.REACT_APP_BASE_URL}/${profileData.pic}`);
       }
     }
   }, [profileData, props.profile]);
 
-  return <img src={`${image}`} alt="pic" style={picStyle} loading="lazy" srcset />;
+  return (
+    <img src={`${image}`} alt="pic" style={picStyle} loading="lazy" srcset />
+  );
 }

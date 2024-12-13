@@ -116,12 +116,13 @@ export default function LeftSidebar(props) {
             </div>
           </div>
         )}
+        
         {props.layout === 1 && (
           <div className="widget">
             <h4 className="widget-title">Recent Activity</h4>
             <ul className="activitiez">
               {props.profileData &&
-                props.profileData?.data?.recentActivity?.map((item, i) => {
+                props.profileData?.recentActivity?.map((item, i) => {
                   return (
                     <li key={i}>
                       <div className="activity-meta">

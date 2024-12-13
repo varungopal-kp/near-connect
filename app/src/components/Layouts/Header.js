@@ -2,14 +2,22 @@ import React, { useEffect, useRef, useState } from "react";
 import { logout } from "../../redux/actions/authActions";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { getDashboardCount } from "../../redux/actions/commonActions";
+import {
+  getDashboardCount,
+  updateProfileImage,
+} from "../../redux/actions/commonActions";
+import { toast } from "react-toastify";
+import ProfilePic from "../../components/ProfilePic";
 
 export default function Header(props) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [isActive, setIsActive] = useState(false);
   const userSettingsRef = useRef(null); // Reference to the user settings dropdown
-  const userImageRef = useRef(null); // Reference to the user image div
+  const navUserRef = useRef(null); // Reference to the user image div
+
+  const fileProfileInputRef = React.useRef(null);
+  const fileBackgroundInputRef = React.useRef(null);
 
   const common = useSelector((state) => state.common);
 
@@ -23,8 +31,8 @@ export default function Header(props) {
     if (
       userSettingsRef.current &&
       !userSettingsRef.current.contains(event.target) &&
-      userImageRef.current &&
-      !userImageRef.current.contains(event.target)
+      navUserRef.current &&
+      !navUserRef.current.contains(event.target)
     ) {
       setIsActive(false); // Close the dropdown if clicked outside
     }
@@ -47,11 +55,43 @@ export default function Header(props) {
     };
   }, [isActive]);
 
+  const handleProfileFileChange = (event, type = false) => {
+    try {
+      const files = event.target.files;
+
+      if (files.length === 0) {
+        return "";
+      }
+      if (files[0].size > 5 * 1024 * 1024) {
+        return toast.error("File size should be less than 5 MB");
+      }
+      if (!files[0].type.startsWith("image")) {
+        return toast.error("Only images are allowed");
+      }
+
+      const formData = new FormData();
+      formData.append("photo", files[0]);
+      formData.append("type", type);
+
+      return dispatch(updateProfileImage(formData))
+        .catch((err) => {
+          return toast.error(err || "Something went wrong");
+        })
+        .then((res) => {
+          if (res.data) {
+            return toast.success("Successfull");
+          }
+        });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const handleLogout = () => {
     dispatch(logout());
     navigate("/login");
   };
-  
+ 
   return (
     <>
       {" "}
@@ -110,7 +150,7 @@ export default function Header(props) {
               </a>
             </li>
           </ul>
-          <div className="user-img" onClick={toggleDropdown} ref={userImageRef}>
+          <div className="user-img" onClick={toggleDropdown} ref={navUserRef}>
             <img src="images/resources/admin.jpg" alt="" />
             <span className="status f-online"></span>
             <div
@@ -134,7 +174,19 @@ export default function Header(props) {
         <section>
           <div class="feature-photo">
             <figure>
-              <img src="/images/resources/timeline-1.jpg" alt="" />
+              {props.profileData && props.profileData?.backgroundPic ? (
+                <img
+                  src={`${process.env.REACT_APP_BASE_URL}/${props.profileData?.backgroundPic}`}
+                  alt=""
+                  style={{ maxHeight: "400px" }}
+                />
+              ) : (
+                <img
+                  src="/images/resources/white.jpg"
+                  alt=""
+                  style={{ maxHeight: "400px" }}
+                />
+              )}
             </figure>
             <div class="add-btn">
               <span>1205 followers</span>
@@ -142,11 +194,17 @@ export default function Header(props) {
                 Add Friend
               </a>
             </div>
-            <form class="edit-phto">
+            <form class="edit-phto pointer">
               <i class="fa fa-camera-retro"></i>
               <label class="fileContainer">
                 Edit Cover Photo
-                <input type="file" />
+                <input
+                  type="file"
+                  accept="image/*"
+                  ref={fileBackgroundInputRef}
+                  style={{ display: "none" }}
+                  onChange={(e) => handleProfileFileChange(e, "background")}
+                />
               </label>
             </form>
             <div class="container-fluid">
@@ -154,12 +212,20 @@ export default function Header(props) {
                 <div class="col-lg-2 col-sm-3">
                   <div class="user-avatar">
                     <figure>
-                      <img src="/images/resources/user-avatar.jpg" alt="" />
-                      <form class="edit-phto">
+                      <ProfilePic profile />
+                      <form class="edit-phto pointer">
                         <i class="fa fa-camera-retro"></i>
                         <label class="fileContainer">
                           Edit Display Photo
-                          <input type="file" />
+                          <input
+                            type="file"
+                            accept="image/*"
+                            ref={fileProfileInputRef}
+                            style={{ display: "none" }}
+                            onChange={(e) =>
+                              handleProfileFileChange(e, "profile")
+                            }
+                          />
                         </label>
                       </form>
                     </figure>

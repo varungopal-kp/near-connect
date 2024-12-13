@@ -16,7 +16,7 @@ export default function Index() {
         <div class="nearly-pepls">
           <figure>
             <a href="time-line.html" title="">
-              <ProfilePic url={item.pic} />
+              <ProfilePic url={item.pic} defaultSize/>
             </a>
           </figure>
           <div class="pepl-info">

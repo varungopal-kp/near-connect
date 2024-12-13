@@ -22,7 +22,7 @@ export default function Index({ children }) {
     dispatch(getProfile());
     dispatch(getFollowUserDetails(username))
       .then((res) => {
-        console.log(res.data);
+       
         if (res.data) {
           setProfile(res.data?.data);
         }
@@ -40,7 +40,7 @@ export default function Index({ children }) {
     }
   }, [profile?._id]);
 
-  console.log(profile, _layout);
+ 
 
   return (
     <div className="theme-layout">

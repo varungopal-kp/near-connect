@@ -63,7 +63,7 @@ export default function Index() {
               {notification.map((item) => (
                 <li key={item._id}>
                   <figure>
-                    <ProfilePic url={item.pic} />
+                    <ProfilePic url={item.pic} defaultSize/>
                   </figure>
                   <div class="notifi-meta">
                     <p>{item.message}</p>

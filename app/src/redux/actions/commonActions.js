@@ -21,6 +21,9 @@ import {
   FETCH_ITEMS_REQUEST,
   FETCH_ITEMS_SUCCESS,
   FETCH_ITEMS_FAILURE,
+  UPDATE_PROFILE_IMAGE_REQUEST,
+  UPDATE_PROFILE_IMAGE_SUCCESS,
+  UPDATE_PROFILE_IMAGE_FAILURE,
 } from "../constants/common";
 
 export const getProfile = () => async (dispatch) => {
@@ -141,3 +144,23 @@ export const searchProfile =
       return Promise.reject(errMessage);
     }
   };
+
+export const updateProfileImage = (data) => async (dispatch) => {
+  try {
+    dispatch({ type: UPDATE_PROFILE_IMAGE_REQUEST });
+    const response = await axios.put("/users/profile/image", data);
+    dispatch({
+      type: UPDATE_PROFILE_IMAGE_SUCCESS,
+      payload: response.data,
+    });
+    return Promise.resolve(response.data);
+  } catch (error) {
+    const errMessage =
+      error.response?.data?.message || "Something went wrong";
+    dispatch({
+      type: UPDATE_PROFILE_IMAGE_FAILURE,
+      error: error.message,
+    });
+    return Promise.reject(errMessage);
+  }
+};

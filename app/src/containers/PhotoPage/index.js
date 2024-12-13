@@ -162,6 +162,8 @@ export default function Index(props) {
                 <img
                   src={`${process.env.REACT_APP_BASE_URL}/${photo.path}`}
                   alt=""
+                  width="200"
+                  height="200"
                 />
               </a>
             </li>

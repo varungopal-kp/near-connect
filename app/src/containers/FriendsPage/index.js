@@ -42,7 +42,7 @@ export default function Index(props) {
         <div class="nearly-pepls">
           <figure>
             <a href="" title="">
-              <ProfilePic url={item.friend?.pic} />
+              <ProfilePic url={item.friend?.pic} defaultSize/>
             </a>
           </figure>
           <div class="pepl-info">

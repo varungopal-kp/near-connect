@@ -27,6 +27,7 @@ const UserSchema = new Schema(
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     pic: { type: String },
+    backgroundPic: { type: String },
     recentActivity: { type: [UserActivitySchema], default: [] },
     location: {
       city: { type: String },

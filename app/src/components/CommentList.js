@@ -155,7 +155,7 @@ export default function Comments(props) {
       <ul class="we-comet">
         <li class="post-comment">
           <div class="comet-avatar">
-            <ProfilePic profile style={{ width: "40px", height: "40px" }} />
+            <ProfilePic profile defaultSize/>
           </div>
           <div class="post-comt-box">
             <Formik

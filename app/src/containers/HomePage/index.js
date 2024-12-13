@@ -328,7 +328,7 @@ export default function Index() {
             </div>
           )}
           <figure>
-            <ProfilePic profile />
+            <ProfilePic profile defaultSize/>
           </figure>
           <div className="newpst-input">
             <Formik

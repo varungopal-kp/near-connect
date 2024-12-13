@@ -48,7 +48,7 @@ export default function FollowerRequest(props) {
         <div class="nearly-pepls">
           <figure>
             <a href="time-line.html" title="">
-              <ProfilePic url={item.requestUser?.pic} />
+              <ProfilePic url={item.requestUser?.pic} defaultSize/>
             </a>
           </figure>
           <div class="pepl-info">

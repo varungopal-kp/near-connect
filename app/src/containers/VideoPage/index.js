@@ -126,7 +126,7 @@ export default function Index(props) {
       console.error(error);
     }
   };
-  console.log(videos, "videos");
+ 
   return (
     <div class="col-lg-6">
       <div class="central-meta">
