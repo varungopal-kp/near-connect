@@ -11,10 +11,11 @@ export default function LeftSidebar(props) {
             <ul class="short-profile">
               <li>
                 <span>about</span>
-                <p>
-                  Hi, i am jhon kates, i am 32 years old and worked as a web
-                  developer in microsoft company.{" "}
-                </p>
+                {props.layout === 4 ? (
+                  <p>{props.accountDetails?.about}</p>
+                ) : (
+                  <p>{props.profileData?.about}</p>
+                )}
               </li>
             </ul>
           </div>
@@ -116,7 +117,7 @@ export default function LeftSidebar(props) {
             </div>
           </div>
         )}
-        
+
         {props.layout === 1 && (
           <div className="widget">
             <h4 className="widget-title">Recent Activity</h4>

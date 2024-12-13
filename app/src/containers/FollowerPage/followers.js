@@ -33,6 +33,7 @@ export default function Followers(props) {
       .then((res) => {
         if (res.data) {
           dispatch({ type: DELETE_ITEM, payload: id });
+          props.setFollowersCount((preValue) => preValue - 1);
           return toast.success("Friends");
         }
       })

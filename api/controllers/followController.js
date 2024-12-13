@@ -120,11 +120,20 @@ exports.getFriends = async (req, res) => {
 };
 
 exports.removeFollower = async (req, res) => {
+  const session = await mongoose.startSession();
   try {
     const removeFollower = await Follower.findByIdAndDelete(req.params.id);
     if (!removeFollower) {
       return responseHelper.error(res, null, "Follower not found", 404);
     }
+    session.startTransaction();
+
+    await User.findByIdAndUpdate(removeFollower.user, {
+      $inc: { followersCount: -1 },
+    }).session(session);
+
+    await session.commitTransaction();
+
     return responseHelper.success(
       res,
       true,
@@ -132,7 +141,10 @@ exports.removeFollower = async (req, res) => {
       200
     );
   } catch (error) {
+    console.log(error);
     return responseHelper.error(res, error, "Failed to remove follower", 500);
+  } finally {
+    session.endSession();
   }
 };
 exports.confirmFriend = async (req, res) => {
@@ -165,6 +177,17 @@ exports.confirmFriend = async (req, res) => {
     if (newfriend) {
       await isFollower.deleteOne({ session }); //await is required to use session
 
+      await User.updateMany(
+        { _id: { $in: [userId, req.params.id] } },
+        {
+          $inc: { friendsCount: 1 },
+        }
+      ).session(session);
+
+      await User.findByIdAndUpdate(userId, {
+        $inc: { followersCount: -1 },
+      }).session(session);
+
       await session.commitTransaction();
 
       userActivityListener.emit("userActivity", {
@@ -185,16 +208,25 @@ exports.confirmFriend = async (req, res) => {
   }
 };
 exports.deleteFollowRequest = async (req, res) => {
+  const session = await mongoose.startSession();
   try {
+    session.startTransaction();
+
     const followRequest = await FollowRequest.findOneAndUpdate(
       { _id: req.params.id, user: req.user.userId },
       {
         status: "rejected",
       }
-    );
+    ).session(session);
     if (!followRequest) {
       return responseHelper.error(res, null, "Request not found", 404);
     }
+
+    await User.findByIdAndUpdate(req.user.userId, {
+      $inc: { requestsCount: -1 },
+    }).session(session);
+
+    await session.commitTransaction();
 
     return responseHelper.success(
       res,
@@ -204,11 +236,14 @@ exports.deleteFollowRequest = async (req, res) => {
     );
   } catch (error) {
     return responseHelper.error(res, error, "Failed to remove request", 500);
+  } finally {
+    session.endSession();
   }
 };
 exports.confirmFollowRequest = async (req, res) => {
   const session = await mongoose.startSession();
   try {
+    session.startTransaction();
     const followRequest = await FollowRequest.findOne({
       _id: req.params.id,
       user: req.user.userId,
@@ -216,7 +251,7 @@ exports.confirmFollowRequest = async (req, res) => {
     if (!followRequest) {
       return responseHelper.error(res, null, "Request not found", 404);
     }
-    session.startTransaction();
+
     const follower = await Follower.create(
       [
         {
@@ -228,7 +263,13 @@ exports.confirmFollowRequest = async (req, res) => {
     );
     if (follower) {
       await followRequest.deleteOne({ session });
+
+      await User.findByIdAndUpdate(req.user.userId, {
+        $inc: { followersCount: 1, requestsCount: -1 },
+      });
+
       await session.commitTransaction();
+
       return responseHelper.success(
         res,
         true,
@@ -238,6 +279,48 @@ exports.confirmFollowRequest = async (req, res) => {
     }
   } catch (error) {
     return responseHelper.error(res, error, "Failed to confirm request", 500);
+  } finally {
+    session.endSession();
+  }
+};
+
+exports.removeFriend = async (req, res) => {
+  const session = await mongoose.startSession();
+  try {
+    session.startTransaction();
+
+    const isFriend = await Friend.findOne({
+      $or: [{ user: req.user.userId }, { friend: req.user.userId }],
+      _id: req.params.id,
+    });
+    if (!isFriend) {
+      return responseHelper.error(res, null, "You are not a friend", 404);
+    }
+    const friend = await Friend.findByIdAndDelete(req.params.id).session(
+      session
+    );
+    if (!friend) {
+      return responseHelper.error(res, null, "Friend not found", 404);
+    }
+
+    await User.updateMany(
+      { _id: { $in: [req.user.userId, isFriend.friend] } },
+      {
+        $inc: { friendsCount: -1 },
+      }
+    ).session(session);
+
+    await session.commitTransaction();
+
+    return responseHelper.success(
+      res,
+      true,
+      "Friend deleted successfully",
+      200
+    );
+  } catch (error) {
+
+    return responseHelper.error(res, error, "Failed to remove friend", 500);
   } finally {
     session.endSession();
   }
@@ -265,23 +348,6 @@ exports.getCounts = async (req, res) => {
     );
   } catch (error) {
     return responseHelper.error(res, error, "Failed to get follow count", 500);
-  }
-};
-
-exports.removeFriend = async (req, res) => {
-  try {
-    const friend = await Friend.findByIdAndDelete(req.params.id);
-    if (!friend) {
-      return responseHelper.error(res, null, "Friend not found", 404);
-    }
-    return responseHelper.success(
-      res,
-      true,
-      "Friend deleted successfully",
-      200
-    );
-  } catch (error) {
-    return responseHelper.error(res, error, "Failed to remove friend", 500);
   }
 };
 

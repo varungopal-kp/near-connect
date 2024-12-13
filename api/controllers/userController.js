@@ -86,10 +86,19 @@ exports.getUserProfile = async (req, res) => {
         $group: {
           _id: "$_id",
           name: { $first: "$name" },
+          lastName: { $first: "$lastName" },
           email: { $first: "$email" },
           pic: { $first: "$pic" },
           username: { $first: "$username" },
           backgroundPic: { $first: "$backgroundPic" },
+          friendsCount: { $first: "$friendsCount" },
+          followersCount: { $first: "$followersCount" },
+          requestsCount: { $first: "$requestsCount" },
+          about: { $first: "$about" },
+          dob: { $first: "$dob" },
+          place: { $first: "$place" },
+          pincode: { $first: "$pincode" },
+          gender: { $first: "$gender" },
           recentActivity: { $push: "$recentActivity" },
         },
       },
@@ -97,10 +106,19 @@ exports.getUserProfile = async (req, res) => {
         $project: {
           _id: 1,
           name: 1,
+          lastName: 1,
           email: 1,
+          username: 1,
           pic: 1,
           backgroundPic: 1,
-          username: 1,
+          friendsCount: 1,
+          followersCount: 1,
+          requestsCount: 1,
+          about: 1,
+          place: 1,
+          dob: 1,
+          gender: 1,
+          pincode: 1,
           recentActivity: {
             $filter: {
               input: "$recentActivity",
@@ -327,5 +345,29 @@ exports.updateProfileImage = async (req, res) => {
       "Error updating profile image",
       500
     );
+  }
+};
+exports.updateProfile = async (req, res) => {
+  try {
+    const { userId } = req.user;
+    const data = req.body;
+    const user = await User.findById(userId);
+    
+    if (!user) {
+      return responseHelper.error(res, null, "User not found", 404);
+    }
+
+    user.name = data.name;
+    user.about = data.about;
+    user.lastName = data.lastName;
+    user.place = data.place;
+    user.gender = data.gender;
+    user.pincode = data.pincode;
+    user.dob = data.dob;
+
+    await user.save();
+    return responseHelper.success(res, user, "Profile updated", 200);
+  } catch (error) {
+    return responseHelper.error(res, error, "Error updating profile", 500);
   }
 };

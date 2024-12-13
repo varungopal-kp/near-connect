@@ -12,7 +12,7 @@ router.post("/", userController.createUser);
 router.get("/", userController.getAllUsers);
 router.get("/search", userController.searchUsers);
 router.get("/profile", userController.getUserProfile);
-
+router.put("/profile", userController.updateProfile);
 router.put(
   "/profile/image",
   fileUploader.single("photo"),

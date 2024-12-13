@@ -31,3 +31,15 @@
 .pointer :hover {
   cursor: pointer;
 }
+.add-btn > .follw-text {
+  border-radius: 2px;
+  color: #fff;
+  display: inline-block;
+  font-size: 14px;
+  padding: 4px 20px;
+  border: 1px solid transparent;
+  background: #088dcd;
+}
+.checkbox input, .form-radio input {
+  opacity: 1 !important;
+}

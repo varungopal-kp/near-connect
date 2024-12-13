@@ -3,24 +3,28 @@ import InfiniteScrollList from "../../components/InfiniteScroll";
 import { getFollowCount, getFriends } from "../../redux/actions/followActions";
 import ProfilePic from "../../components/ProfilePic";
 import { DELETE_ITEM } from "../../redux/constants/common";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { removeFriend } from "../../redux/actions/followActions";
 import swal from "sweetalert";
 
 export default function Index(props) {
   const dispatch = useDispatch();
-  const [friendsCount , setFriendsCount] = React.useState(0);
-   
+  const [friendsCount, setFriendsCount] = React.useState(0);
+  const profileData = useSelector((state) => state.common?.profile);
 
   useEffect(() => {
-    dispatch(getFollowCount(props.accountId)).then((res) => {
-      if (res.data) {
-        const friendsCount = res.data.data?.friendsCount || 0;
-        setFriendsCount(friendsCount);
-      }
-    });
-  }, []);
+    if (props.accountId) {
+      dispatch(getFollowCount(props.accountId)).then((res) => {
+        if (res.data) {
+          const friendsCount = res.data.data?.friendsCount || 0;
+          setFriendsCount(friendsCount);
+        }
+      });
+    } else {
+      setFriendsCount(+profileData?.friendsCount || 0);
+    }
+  }, [profileData?._id, props.accountId]);
 
   const handleRemoveFriend = (id) => {
     return dispatch(removeFriend(id))
@@ -36,13 +40,13 @@ export default function Index(props) {
       });
   };
 
-  const infiniteRender = (item) => {    
+  const infiniteRender = (item) => {
     return (
       <li>
         <div class="nearly-pepls">
           <figure>
             <a href="" title="">
-              <ProfilePic url={item.friend?.pic} defaultSize/>
+              <ProfilePic url={item.friend?.pic} defaultSize />
             </a>
           </figure>
           <div class="pepl-info">
@@ -86,7 +90,7 @@ export default function Index(props) {
           <ul class="nav nav-tabs">
             <li class="nav-item">
               <a class="active" href="#frends" data-toggle="tab">
-                 Friends
+                Friends
               </a>{" "}
               <span>{friendsCount}</span>
             </li>

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Followers from "./followers";
 import FollowerRequest from "./followerRequest";
 import { Tab, Nav } from "react-bootstrap";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getFollowCount } from "../../redux/actions/followActions";
 
 export default function Index(props) {
@@ -10,19 +10,25 @@ export default function Index(props) {
 
   const [followersCount, setFollowersCount] = useState(0);
   const [followRequestCount, setFollowRequestCount] = useState(0);
+  const profileData = useSelector((state) => state.common?.profile);
 
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(getFollowCount(props.accountId)).then((res) => {
-      if (res.data) {
-        const followersCount = res.data.data?.followersCount || 0;
-        const followRequestCount = res.data.data?.followRequestCount || 0;
-        setFollowersCount(followersCount);
-        setFollowRequestCount(followRequestCount);
-      }
-    });
-  }, []);
+    if (props.accountId) {
+      dispatch(getFollowCount(props.accountId)).then((res) => {
+        if (res.data) {
+          const followersCount = res.data.data?.followersCount || 0;
+          const followRequestCount = res.data.data?.followRequestCount || 0;
+          setFollowersCount(followersCount);
+          setFollowRequestCount(followRequestCount);
+        }
+      });
+    } else {
+      setFollowersCount(+profileData?.followersCount || 0);
+      setFollowRequestCount(+profileData?.requestsCount || 0);
+    }
+  }, [profileData?._id, props.accountId]);
 
   return (
     <div class="col-lg-6">
@@ -32,7 +38,7 @@ export default function Index(props) {
             <Nav variant="tabs">
               <Nav.Item>
                 <Nav.Link eventKey="followers" style={{ float: "left" }}>
-                   Followers
+                  Followers
                 </Nav.Link>
                 <span style={{ float: "right" }}>{followersCount}</span>
               </Nav.Item>
@@ -57,6 +63,7 @@ export default function Index(props) {
                 {key === "followersRequest" && (
                   <FollowerRequest
                     setFollowRequestCount={setFollowRequestCount}
+                    setFollowersCount={setFollowersCount}
                     accountId={props.accountId}
                   />
                 )}

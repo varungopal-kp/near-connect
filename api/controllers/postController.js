@@ -421,7 +421,7 @@ exports.uploadVideo = async (req, res) => {
     if (!req.file) {
       return responseHelper.validationError(res, errors, "Invalid input data");
     }
-    console.log(req.file);
+    
     data.path = replaceFileUrl(req.file.path);
     data.mimeType = req.file.mimetype;
     data.fileSize = req.file.size;

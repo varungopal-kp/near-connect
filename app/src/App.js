@@ -1,5 +1,5 @@
 import "./App.css";
-import 'react-responsive-modal/styles.css';
+import "react-responsive-modal/styles.css";
 
 import { Provider } from "react-redux";
 
@@ -18,6 +18,7 @@ import SearchPage from "./containers/SearchPage/index";
 import PortraitPage from "./containers/PortraitPage/index";
 import PhotoPage from "./containers/PhotoPage/index";
 import VideoPage from "./containers/VideoPage/index";
+import ProfilePage from "./containers/ProfilePage/index";
 import Loader from "./components/Loader/index";
 
 function App() {
@@ -78,6 +79,14 @@ function App() {
             element={
               <Layout layout={2}>
                 <SearchPage />
+              </Layout>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <Layout>
+                <ProfilePage />
               </Layout>
             }
           />

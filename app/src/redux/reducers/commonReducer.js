@@ -22,6 +22,7 @@ import {
   UPDATE_PROFILE_IMAGE_SUCCESS,
   UPDATE_PROFILE_IMAGE_REQUEST,
   UPDATE_PROFILE_IMAGE_FAILURE,
+  UPDATE_PROFILE,
 } from "./../constants/common";
 
 const initialState = {
@@ -168,7 +169,6 @@ const itemsReducer = (state = initialState, action) => {
         loading: true,
       };
     case UPDATE_PROFILE_IMAGE_SUCCESS:
-      
       return {
         ...state,
         loading: false,
@@ -184,6 +184,14 @@ const itemsReducer = (state = initialState, action) => {
         ...state,
         loading: false,
         error: action.payload,
+      };
+    case UPDATE_PROFILE:
+      return {
+        ...state,
+        profile: {
+          ...state.profile,
+          ...action.payload,
+        },
       };
     default:
       return state;

@@ -24,15 +24,20 @@ const UserSchema = new Schema(
   {
     // _id is automatically added
     name: { type: String, required: true },
+    lastName: { type: String },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     pic: { type: String },
     backgroundPic: { type: String },
     recentActivity: { type: [UserActivitySchema], default: [] },
-    location: {
-      city: { type: String },
-      country: { type: String },
-    },
+    place: { type: String },
+    pincode: { type: String },
+    followersCount: { type: Number, default: 0 },
+    friendsCount: { type: Number, default: 0 },
+    requestsCount: { type: Number, default: 0 },
+    about: { type: String },
+    gender: { type: String },
+    dob: { type: Date },
     fcmToken: { type: String },
   },
   { timestamps: true } // Automatically adds createdAt and updatedAt fields

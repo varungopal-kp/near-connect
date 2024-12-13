@@ -24,6 +24,9 @@ import {
   UPDATE_PROFILE_IMAGE_REQUEST,
   UPDATE_PROFILE_IMAGE_SUCCESS,
   UPDATE_PROFILE_IMAGE_FAILURE,
+  UPDATE_PROFILE_REQUEST,
+  UPDATE_PROFILE_SUCCESS,
+  UPDATE_PROFILE_FAILURE,
 } from "../constants/common";
 
 export const getProfile = () => async (dispatch) => {
@@ -159,6 +162,26 @@ export const updateProfileImage = (data) => async (dispatch) => {
       error.response?.data?.message || "Something went wrong";
     dispatch({
       type: UPDATE_PROFILE_IMAGE_FAILURE,
+      error: error.message,
+    });
+    return Promise.reject(errMessage);
+  }
+};
+
+export const updateProfile = (data) => async (dispatch) => {
+  try {
+    dispatch({ type: UPDATE_PROFILE_REQUEST });
+    const response = await axios.put("/users/profile", data);
+    dispatch({
+      type: UPDATE_PROFILE_SUCCESS,
+      payload: response.data,
+    });
+    return Promise.resolve(response.data);
+  } catch (error) {
+    const errMessage =
+      error.response?.data?.message || "Something went wrong";
+    dispatch({
+      type: UPDATE_PROFILE_FAILURE,
       error: error.message,
     });
     return Promise.reject(errMessage);

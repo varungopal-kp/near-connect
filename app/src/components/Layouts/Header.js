@@ -188,11 +188,16 @@ export default function Header(props) {
                 />
               )}
             </figure>
-            <div class="add-btn">
-              <span>1205 followers</span>
-              <a href="#" title="" data-ripple="">
-                Add Friend
-              </a>
+            <div class="add-btn" style={{ right: "200px" }}>
+              <span></span>
+              <p className="follw-text">
+              125 friends
+              </p>
+            </div><div class="add-btn">
+              <span></span>
+              <p className="follw-text">
+              1205 followers
+              </p>
             </div>
             <form class="edit-phto pointer">
               <i class="fa fa-camera-retro"></i>

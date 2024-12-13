@@ -34,6 +34,8 @@ export default function FollowerRequest(props) {
       .then((res) => {
         if (res.data) {
           dispatch({ type: DELETE_ITEM, payload: id });
+          props.setFollowRequestCount((preValue) => preValue - 1);
+          props.setFollowersCount((preValue) => preValue + 1);
           return toast.success("Confirmed");
         }
       })
