@@ -151,7 +151,7 @@ export default function Header(props) {
             </li>
           </ul>
           <div className="user-img" onClick={toggleDropdown} ref={navUserRef}>
-            <img src="images/resources/admin.jpg" alt="" />
+            <img src="/images/resources/admin.jpg" alt="" />
             <span className="status f-online"></span>
             <div
               className={`user-setting ${isActive ? "active" : ""}`}
@@ -191,12 +191,12 @@ export default function Header(props) {
             <div class="add-btn" style={{ right: "200px" }}>
               <span></span>
               <p className="follw-text">
-              125 friends
+              {props.profileData?.friendsCount} friends
               </p>
             </div><div class="add-btn">
               <span></span>
               <p className="follw-text">
-              1205 followers
+              {props.profileData?.followersCount} followers
               </p>
             </div>
             <form class="edit-phto pointer">

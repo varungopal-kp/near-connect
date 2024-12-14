@@ -1,6 +1,7 @@
 const User = require("../models/user");
 const responseHelper = require("../helpers/responseHelper");
 const { convertToObjectId } = require("../helpers/mongoUtils");
+const { geocode } = require("../helpers/geoCodeHelper");
 
 // Create a new user
 exports.createUser = async (req, res) => {
@@ -47,6 +48,7 @@ exports.getUserById = async (req, res) => {
 // Get user profile
 exports.getUserProfile = async (req, res) => {
   try {
+  
     const user = await User.aggregate([
       {
         $match: {
@@ -352,7 +354,7 @@ exports.updateProfile = async (req, res) => {
     const { userId } = req.user;
     const data = req.body;
     const user = await User.findById(userId);
-    
+
     if (!user) {
       return responseHelper.error(res, null, "User not found", 404);
     }

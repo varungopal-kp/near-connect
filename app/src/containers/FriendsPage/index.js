@@ -1,11 +1,15 @@
 import React, { useEffect } from "react";
 import InfiniteScrollList from "../../components/InfiniteScroll";
-import { getFollowCount, getFriends } from "../../redux/actions/followActions";
+import {
+  getFollowCount,
+  getFriends,
+  removeFriend,
+} from "../../redux/actions/followActions";
 import ProfilePic from "../../components/ProfilePic";
-import { DELETE_ITEM } from "../../redux/constants/common";
+import { DELETE_ITEM, UPDATE_PROFILE } from "../../redux/constants/common";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import { removeFriend } from "../../redux/actions/followActions";
+
 import swal from "sweetalert";
 
 export default function Index(props) {
@@ -30,8 +34,13 @@ export default function Index(props) {
     return dispatch(removeFriend(id))
       .then((res) => {
         if (res.data) {
+          const newFriendsCount = friendsCount - 1;
           dispatch({ type: DELETE_ITEM, payload: id });
-          setFriendsCount((preValue) => preValue - 1);
+          dispatch({
+            type: UPDATE_PROFILE,
+            payload: { friendsCount: newFriendsCount },
+          });
+          setFriendsCount(newFriendsCount);
           return toast.success("Removed");
         }
       })

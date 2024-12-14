@@ -61,7 +61,7 @@ export default function Post(props) {
         <div className="user-post">
           <div className="friend-info">
             <figure>
-              <ProfilePic url={item.user?.pic} defaultSize/>
+              <ProfilePic url={item.user?.pic} defaultSize />
             </figure>
             <div className="friend-name">
               <ins>
@@ -169,7 +169,7 @@ export default function Post(props) {
         infiniteRender={infiniteRender}
         limit={10}
         fetchItems={fetchItems}
-        user={props.user}
+        user={props.accountDetails?._id}
       />
     </div>
   );

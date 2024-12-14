@@ -32,6 +32,10 @@ const UserSchema = new Schema(
     recentActivity: { type: [UserActivitySchema], default: [] },
     place: { type: String },
     pincode: { type: String },
+    location: {
+      type: { type: String, enum: ['Point'], required: true },  // 'Point' for GeoJSON standard
+      coordinates: { type: [Number], required: true }, // [longitude, latitude]
+    },
     followersCount: { type: Number, default: 0 },
     friendsCount: { type: Number, default: 0 },
     requestsCount: { type: Number, default: 0 },

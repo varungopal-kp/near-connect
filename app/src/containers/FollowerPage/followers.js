@@ -7,7 +7,7 @@ import {
 } from "../../redux/actions/followActions";
 import ProfilePic from "../../components/ProfilePic";
 import { useDispatch } from "react-redux";
-import { DELETE_ITEM } from "../../redux/constants/common";
+import { DELETE_ITEM, UPDATE_PROFILE } from "../../redux/constants/common";
 import { toast } from "react-toastify";
 import swal from "sweetalert";
 
@@ -18,8 +18,13 @@ export default function Followers(props) {
     return dispatch(removeFollower(id))
       .then((res) => {
         if (res.data) {
+          const newFollowersCount = props.followersCount - 1;
+          dispatch({
+            type: UPDATE_PROFILE,
+            payload: { followersCount: newFollowersCount },
+          });
           dispatch({ type: DELETE_ITEM, payload: id });
-          props.setFollowersCount((preValue) => preValue - 1);
+          props.setFollowersCount(newFollowersCount);
           return toast.success("Removed");
         }
       })
@@ -32,8 +37,17 @@ export default function Followers(props) {
     return dispatch(addFriend(friend))
       .then((res) => {
         if (res.data) {
+          const newFollowersCount = props.followersCount - 1;
+          const newFriendsCount = props.friendsCount + 1;
+          dispatch({
+            type: UPDATE_PROFILE,
+            payload: {
+              followersCount: newFollowersCount,
+              friendsCount: newFriendsCount,
+            },
+          });
           dispatch({ type: DELETE_ITEM, payload: id });
-          props.setFollowersCount((preValue) => preValue - 1);
+          props.setFollowersCount(newFollowersCount);
           return toast.success("Friends");
         }
       })
@@ -48,7 +62,7 @@ export default function Followers(props) {
         <div class="nearly-pepls">
           <figure>
             <a href="time-line.html" title="">
-              <ProfilePic url={item.follower?.pic} defaultSize/>
+              <ProfilePic url={item.follower?.pic} defaultSize />
             </a>
           </figure>
           <div class="pepl-info">

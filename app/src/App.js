@@ -19,6 +19,7 @@ import PortraitPage from "./containers/PortraitPage/index";
 import PhotoPage from "./containers/PhotoPage/index";
 import VideoPage from "./containers/VideoPage/index";
 import ProfilePage from "./containers/ProfilePage/index";
+import NearbyPage from "./containers/NearbyPage/index";
 import Loader from "./components/Loader/index";
 
 function App() {
@@ -87,6 +88,14 @@ function App() {
             element={
               <Layout>
                 <ProfilePage />
+              </Layout>
+            }
+          />
+            <Route
+            path="/nearby"
+            element={
+              <Layout>
+                <NearbyPage />
               </Layout>
             }
           />

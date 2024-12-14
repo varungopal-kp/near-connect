@@ -10,6 +10,7 @@ export default function Index(props) {
 
   const [followersCount, setFollowersCount] = useState(0);
   const [followRequestCount, setFollowRequestCount] = useState(0);
+  const [friendsCount, setFriendsCount] = useState(0);
   const profileData = useSelector((state) => state.common?.profile);
 
   const dispatch = useDispatch();
@@ -18,15 +19,18 @@ export default function Index(props) {
     if (props.accountId) {
       dispatch(getFollowCount(props.accountId)).then((res) => {
         if (res.data) {
-          const followersCount = res.data.data?.followersCount || 0;
-          const followRequestCount = res.data.data?.followRequestCount || 0;
-          setFollowersCount(followersCount);
-          setFollowRequestCount(followRequestCount);
+          const newfollowersCount = res.data.data?.followersCount || 0;
+          const newfollowRequestCount = res.data.data?.followRequestCount || 0;
+          const newfriendsCount = res.data.data?.friendsCount || 0;
+          setFollowersCount(newfollowersCount);
+          setFollowRequestCount(newfollowRequestCount);
+          setFriendsCount(newfriendsCount);
         }
       });
     } else {
       setFollowersCount(+profileData?.followersCount || 0);
       setFollowRequestCount(+profileData?.requestsCount || 0);
+      setFriendsCount(+profileData?.friendsCount || 0);
     }
   }, [profileData?._id, props.accountId]);
 
@@ -56,6 +60,8 @@ export default function Index(props) {
                   <Followers
                     setFollowersCount={setFollowersCount}
                     accountId={props.accountId}
+                    followersCount={followersCount}
+                    friendsCount={friendsCount}
                   />
                 )}
               </Tab.Pane>
@@ -65,6 +71,8 @@ export default function Index(props) {
                     setFollowRequestCount={setFollowRequestCount}
                     setFollowersCount={setFollowersCount}
                     accountId={props.accountId}
+                    followersCount={followersCount}
+                    followRequestCount={followRequestCount}
                   />
                 )}
               </Tab.Pane>

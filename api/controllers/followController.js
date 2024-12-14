@@ -151,62 +151,64 @@ exports.confirmFriend = async (req, res) => {
   const session = await mongoose.startSession();
   try {
     const { userId } = req.user;
+
+    // Start the transaction
+    session.startTransaction();
+
+    // Check if the user is a follower
     const isFollower = await Follower.findOne({
       user: userId,
       follower: req.params.id,
-    });
+    }).session(session);
     if (!isFollower) {
+
       return responseHelper.error(res, null, "You are not a follower", 404);
     }
-    session.startTransaction();
 
-    const newfriend = await Friend.create(
+    // Create new friends
+    const newFriends = await Friend.create(
       [
-        {
-          user: userId,
-          friend: req.params.id,
-        },
-        {
-          user: req.params.id,
-          friend: userId,
-        },
+        { user: userId, friend: req.params.id },
+        { user: req.params.id, friend: userId },
       ],
       { session }
     );
 
-    if (newfriend) {
-      await isFollower.deleteOne({ session }); //await is required to use session
+    // Delete the follower record
+    await isFollower.deleteOne({ session });
 
-      await User.updateMany(
-        { _id: { $in: [userId, req.params.id] } },
-        {
-          $inc: { friendsCount: 1 },
-        }
-      ).session(session);
+    // Update users' friend and follower counts
+    await User.updateMany(
+      { _id: { $in: [userId, req.params.id] } },
+      { $inc: { friendsCount: 1 } },
+      { session } 
+    );
 
-      await User.findByIdAndUpdate(userId, {
-        $inc: { followersCount: -1 },
-      }).session(session);
+    await User.findByIdAndUpdate(
+      userId,
+      { $inc: { followersCount: -1 } },
+      { session } 
+    );
 
-      await session.commitTransaction();
+    
+    await session.commitTransaction();
 
-      userActivityListener.emit("userActivity", {
-        userId: req.user.userId,
-        type: "newFriend",
-        data: {
-          associatedUserId: req.params.id,
-        },
-      });
+    
+    userActivityListener.emit("userActivity", {
+      userId,
+      type: "newFriend",
+      data: { associatedUserId: req.params.id },
+    });
 
-      return responseHelper.success(res, newfriend, "Success", 200);
-    }
+    return responseHelper.success(res, newFriends, "Success", 200);
   } catch (error) {
-    console.log(error);
+    console.error("Transaction Error:", error);
     return responseHelper.error(res, error, "Failed to add friend", 500);
   } finally {
     session.endSession();
   }
 };
+
 exports.deleteFollowRequest = async (req, res) => {
   const session = await mongoose.startSession();
   try {

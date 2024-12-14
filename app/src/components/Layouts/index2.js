@@ -22,7 +22,6 @@ export default function Index({ children }) {
     dispatch(getProfile());
     dispatch(getFollowUserDetails(username))
       .then((res) => {
-       
         if (res.data) {
           setProfile(res.data?.data);
         }
@@ -40,14 +39,12 @@ export default function Index({ children }) {
     }
   }, [profile?._id]);
 
- 
-
   return (
     <div className="theme-layout">
       {_layout !== 0 && profile?._id && (
         <>
           {/* Header and Navigation */}
-          <Header layout={_layout} profileData={profile}/>
+          <Header layout={_layout} profileData={profile} />
           <section>
             <div className="gap gray-bg">
               <div className="container-fluid">
@@ -61,8 +58,7 @@ export default function Index({ children }) {
                       {/* Pass props to children */}
                       <>
                         {React.cloneElement(children, {
-                          accountId: profile?._id,
-                          userRelation: profile?.userRelation,
+                          accountDetails: profile,
                           layout: _layout,
                         })}
                       </>

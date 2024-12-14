@@ -1,5 +1,6 @@
 import React from "react";
 import moment from "moment";
+import { Link } from "react-router-dom";
 
 export default function LeftSidebar(props) {
   return (
@@ -26,47 +27,47 @@ export default function LeftSidebar(props) {
             <ul className="naves">
               <li>
                 <i className="ti-folder"></i>
-                <a href="timeline-photos.html" title="">
+                <Link to='/posts' >
                   Posts
-                </a>
+                </Link>
               </li>
 
               <li>
                 <i className="ti-image"></i>
-                <a href="timeline-photos.html" title="">
+                <Link to="/photos" >
                   Photos
-                </a>
+                </Link>
               </li>
               <li>
                 <i className="ti-video-camera"></i>
-                <a href="timeline-videos.html" title="">
+                <Link to="/videos" >
                   videos
-                </a>
+                </Link>
               </li>
               <li>
                 <i className="ti-comments-smiley"></i>
-                <a href="messages.html" title="">
-                  Messages
-                </a>
+                <Link to="/chats" >
+                  Chats
+                </Link>
               </li>
               <li>
                 <i className="ti-bell"></i>
-                <a href="notifications.html" title="">
+                <Link to="/notifications" >
                   Notifications
-                </a>
+                </Link>
               </li>
               <li>
                 <i className="ti-share"></i>
-                <a href="people-nearby.html" title="">
+                <Link to="" >
                   People Nearby
-                </a>
+                </Link>
               </li>
 
               <li>
                 <i className="ti-power-off"></i>
-                <a href="landing.html" title="">
+                <Link to='/logout' >
                   Logout
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -76,12 +77,12 @@ export default function LeftSidebar(props) {
             <h4 class="widget-title">Profile</h4>
             <div class="your-page">
               <figure>
-                <a title="" href="#">
+                <a  href="#">
                   <img alt="" src="images/resources/friend-avatar9.jpg" />
                 </a>
               </figure>
               <div class="page-meta">
-                <a class="underline" title="" href="#">
+                <a class="underline"  href="#">
                   {props.profileData?.name}
                 </a>
                 <span>

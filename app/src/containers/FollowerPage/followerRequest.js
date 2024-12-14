@@ -8,9 +8,8 @@ import {
   confirmFollowRequest,
   deleteFollowRequest,
 } from "../../redux/actions/followActions";
-import { DELETE_ITEM } from "../../redux/constants/common";
+import { DELETE_ITEM, UPDATE_PROFILE } from "../../redux/constants/common";
 import swal from "sweetalert";
-
 
 export default function FollowerRequest(props) {
   const dispatch = useDispatch();
@@ -19,8 +18,15 @@ export default function FollowerRequest(props) {
     return dispatch(deleteFollowRequest(id))
       .then((res) => {
         if (res.data) {
+          const newFollowRequestCount = props.followRequestCount - 1;
+          dispatch({
+            type: UPDATE_PROFILE,
+            payload: {
+              requestsCount: newFollowRequestCount,
+            },
+          });
           dispatch({ type: DELETE_ITEM, payload: id });
-          props.setFollowRequestCount((preValue) => preValue - 1);
+          props.setFollowRequestCount(newFollowRequestCount);
           return toast.success("Removed");
         }
       })
@@ -34,8 +40,17 @@ export default function FollowerRequest(props) {
       .then((res) => {
         if (res.data) {
           dispatch({ type: DELETE_ITEM, payload: id });
-          props.setFollowRequestCount((preValue) => preValue - 1);
-          props.setFollowersCount((preValue) => preValue + 1);
+          const newFollowersCount = props.followersCount + 1;
+          const newFollowRequestCount = props.followRequestCount - 1;
+          dispatch({
+            type: UPDATE_PROFILE,
+            payload: {
+              followersCount: newFollowersCount,
+              requestsCount: newFollowRequestCount,
+            },
+          });
+          props.setFollowRequestCount(newFollowRequestCount);
+          props.setFollowersCount(newFollowersCount);
           return toast.success("Confirmed");
         }
       })
@@ -50,7 +65,7 @@ export default function FollowerRequest(props) {
         <div class="nearly-pepls">
           <figure>
             <a href="time-line.html" title="">
-              <ProfilePic url={item.requestUser?.pic} defaultSize/>
+              <ProfilePic url={item.requestUser?.pic} defaultSize />
             </a>
           </figure>
           <div class="pepl-info">
