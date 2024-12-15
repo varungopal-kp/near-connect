@@ -175,7 +175,16 @@ export default function Index() {
                   </div>
                 </div>
                 <div class="form-group">
-                  <Field name="place" type="text" />
+                  <Field
+                    name="place"
+                    type="text"
+                    className={
+                      errors.place && touched.place ? "input-error" : ""
+                    }
+                  />
+                  {errors.place && touched.place && (
+                    <div className="error">{errors.place}</div>
+                  )}
                   <label class="control-label" for="input">
                     Place
                   </label>
@@ -199,7 +208,7 @@ export default function Index() {
                       errors.about && touched.about ? "input-error" : ""
                     }
                   />
-                  {console.log(errors)}
+
                   {errors.about && touched.about && (
                     <div className="error">{errors.about}</div>
                   )}

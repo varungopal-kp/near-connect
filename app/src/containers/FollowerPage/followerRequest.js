@@ -74,7 +74,7 @@ export default function FollowerRequest(props) {
                 {item.requestUser?.name}
               </a>
             </h4>
-            <span>{item.requestUser?.email}</span>
+            <span>{item.requestUser?.username}</span>
             <a
               href="#"
               title=""

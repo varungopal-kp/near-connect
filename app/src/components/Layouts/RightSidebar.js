@@ -1,7 +1,27 @@
 import React from "react";
+import { useDispatch } from "react-redux";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+import { removeFriend } from "../../redux/actions/followActions";
+import swal from "sweetalert";
 
 export default function RightSidebar(props) {
- 
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const handleRemoveFriend = (id) => {
+    return dispatch(removeFriend(id))
+      .then((res) => {
+        if (res.data) {
+          toast.success("Removed");
+          return navigate("/");
+        }
+      })
+      .catch((err) => {
+        return toast.error(err || "Something went wrong");
+      });
+  };
+
   return (
     <div className="col-lg-3">
       <aside className="sidebar static">
@@ -340,9 +360,24 @@ export default function RightSidebar(props) {
               <div class="page-likes">
                 <ul class="nav nav-tabs likes-btn">
                   <li class="nav-item">
-                    <a data-toggle="tab" href="#link2" class="">
-                      Un Friend
-                    </a>
+                    <button
+                      type="button"
+                      class="btn btn-default btn-sm"
+                      onClick={() => {
+                        swal({
+                          title: "Are you sure?",
+                          icon: "warning",
+                          buttons: true,
+                          dangerMode: true,
+                        }).then((willDelete) => {
+                          if (willDelete) {
+                            handleRemoveFriend(props.profileData._id);
+                          }
+                        });
+                      }}
+                    >
+                      unfriend
+                    </button>
                   </li>
                 </ul>
               </div>

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { searchProfile } from "../../redux/actions/commonActions";
 import InfiniteScrollList from "../../components/InfiniteScroll";
 import ProfilePic from "../../components/ProfilePic";

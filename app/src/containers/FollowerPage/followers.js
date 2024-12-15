@@ -71,7 +71,7 @@ export default function Followers(props) {
                 {item.follower?.name}
               </a>
             </h4>
-            <span>{item.follower?.email}</span>
+            <span>{item.follower?.username}</span>
             <a
               href="#"
               title=""

@@ -169,7 +169,7 @@ export default function Post(props) {
         infiniteRender={infiniteRender}
         limit={10}
         fetchItems={fetchItems}
-        user={props.accountDetails?._id}
+        user={props.user?._id}
       />
     </div>
   );

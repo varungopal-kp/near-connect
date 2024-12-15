@@ -1,109 +1,57 @@
-import React from 'react'
+import React from "react";
+import { getNearByUsers } from "../../redux/actions/commonActions";
+import InfiniteScrollList from "../../components/InfiniteScroll";
+import { Link } from "react-router-dom";
+import ProfilePic from "../../components/ProfilePic";
 
-export default function Index() {
+export default function Index(props) {
+ 
+
+  const infiniteRender = (item) => {
+    return (
+      <li>
+        <div class="nearly-pepls">
+          <figure>
+            <a href="time-line.html" title="">
+             <ProfilePic url={item.pic} defaultSize />
+            </a>
+          </figure>
+          <div class="pepl-info">
+            <h4>
+              <a href="time-line.html" title="">
+                {item.name}
+              </a>
+            </h4>
+            <span>{item.username}</span>
+            <em>
+              <i class="fa fa-map-marker"></i>{item.place}
+            </em>
+            <Link to={`/account/${item.username}`} class="add-butn" >
+             View
+            </Link>
+          </div>
+        </div>
+      </li>
+    );
+  };
+
   return (
     <div class="col-lg-6">
-    <div class="central-meta">
+      <div class="central-meta">
         {/* <div class="nearby-pepl">
             <div class="nearby-map">
                 <div id="map-canvas"></div>
             </div>
         </div> */}
         <ul class="nearby-contct">
-            <li>
-                <div class="nearly-pepls">
-                    <figure>
-                        <a href="time-line.html" title=""><img src="images/resources/friend-avatar9.jpg" alt="" /></a>
-                    </figure>
-                    <div class="pepl-info">
-                        <h4><a href="time-line.html" title="">jhon kates</a></h4>
-                        <span>ftv model</span>
-                        <em><i class="fa fa-map-marker"></i>400m away</em>
-                        <a href="#" title="" class="add-butn" data-ripple="">add friend</a>
-                    </div>
-                </div>
-            </li>
-            <li>
-                <div class="nearly-pepls">
-                    <figure>
-                        <a href="time-line.html" title=""><img src="images/resources/nearly1.jpg" alt=""/></a>
-                    </figure>
-                    <div class="pepl-info">
-                        <h4><a href="time-line.html" title="">sophia Gate</a></h4>
-                        <span>ftv model</span>
-                        <em><i class="fa fa-map-marker"></i>800mm away</em>
-                        <a href="#" title="" class="add-butn" data-ripple="">add friend</a>
-                    </div>
-                </div>
-            </li>
-            <li>
-                <div class="nearly-pepls">
-                    <figure>
-                        <a href="time-line.html" title=""><img src="images/resources/nearly2.jpg" alt=""/></a>
-                    </figure>
-                    <div class="pepl-info">
-                        <h4><a href="time-line.html" title="">sara grey</a></h4>
-                        <span>ftv model</span>
-                        <em><i class="fa fa-map-marker"></i>1km away</em>
-                        <a href="#" title="" class="add-butn" data-ripple="">add friend</a>
-                    </div>
-                </div>
-            </li>
-            <li>
-                <div class="nearly-pepls">
-                    <figure>
-                        <a href="time-line.html" title=""><img src="images/resources/nearly3.jpg" alt=""/></a>
-                    </figure>
-                    <div class="pepl-info">
-                        <h4><a href="time-line.html" title="">Sexy cat</a></h4>
-                        <span>ftv model</span>
-                        <em><i class="fa fa-map-marker"></i>1.3km away</em>
-                        <a href="#" title="" class="add-butn" data-ripple="">add friend</a>
-                    </div>
-                </div>
-            </li>
-            <li>
-                <div class="nearly-pepls">
-                    <figure>
-                        <a href="time-line.html" title=""><img src="images/resources/nearly4.jpg" alt=""/></a>
-                    </figure>
-                    <div class="pepl-info">
-                        <h4><a href="time-line.html" title="">Sara grey</a></h4>
-                        <span>ftv model</span>
-                        <em><i class="fa fa-map-marker"></i>2km away</em>
-                        <a href="#" title="" class="add-butn" data-ripple="">add friend</a>
-                    </div>
-                </div>
-            </li>
-            <li>
-                <div class="nearly-pepls">
-                    <figure>
-                        <a href="time-line.html" title=""><img src="images/resources/nearly5.jpg" alt=""/></a>
-                    </figure>
-                    <div class="pepl-info">
-                        <h4><a href="time-line.html" title="">Amy watson</a></h4>
-                        <span>ftv model</span>
-                        <em><i class="fa fa-map-marker"></i>2km away</em>
-                        <a href="#" title="" class="add-butn" data-ripple="">add friend</a>
-                    </div>
-                </div>
-            </li>
-            <li>
-                <div class="nearly-pepls">
-                    <figure>
-                        <a href="time-line.html" title=""><img src="images/resources/nearly6.jpg" alt=""/></a>
-                    </figure>
-                    <div class="pepl-info">
-                        <h4><a href="time-line.html" title="">caty lasbo</a></h4>
-                        <span>ftv model</span>
-                        <em><i class="fa fa-map-marker"></i>2.5km away</em>
-                        <a href="#" title="" class="add-butn" data-ripple="">add friend</a>
-                    </div>
-                </div>
-            </li>
-
+          <InfiniteScrollList
+            infiniteRender={infiniteRender}
+            limit={10}
+            fetchItems={getNearByUsers}
+            
+          />
         </ul>
+      </div>
     </div>
-</div>
-  )
+  );
 }

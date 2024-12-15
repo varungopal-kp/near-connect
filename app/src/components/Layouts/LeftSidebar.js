@@ -1,15 +1,39 @@
 import React from "react";
 import moment from "moment";
-import { Link } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { toast } from "react-toastify";
+import { Link, useNavigate } from "react-router-dom";
+import { addFollowRequest } from "../../redux/actions/followActions";
+import swal from "sweetalert";
+import ProfilePic from "../ProfilePic";
 
 export default function LeftSidebar(props) {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const handleAddFollower = () => {
+    try {
+      dispatch(addFollowRequest(props.profileData?._id))
+        .then((data) => {
+          if (data.data) {
+            toast.success("Requested");
+            return navigate("/followers");
+          }
+        })
+        .catch((err) => {
+          toast.error(err || "Something went wrong");
+        });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <div className="col-lg-3">
       <aside className="sidebar static">
         {(props.layout === 1 || props.layout === 4) && (
-          <div class="widget stick-widget">
-            <h4 class="widget-title">Profile </h4>
-            <ul class="short-profile">
+          <div className="widget stick-widget">
+            <h4 className="widget-title">Profile </h4>
+            <ul className="short-profile">
               <li>
                 <span>about</span>
                 {props.layout === 4 ? (
@@ -27,91 +51,108 @@ export default function LeftSidebar(props) {
             <ul className="naves">
               <li>
                 <i className="ti-folder"></i>
-                <Link to='/posts' >
-                  Posts
-                </Link>
+                <Link to="/posts">Posts</Link>
               </li>
 
               <li>
                 <i className="ti-image"></i>
-                <Link to="/photos" >
-                  Photos
-                </Link>
+                <Link to="/photos">Photos</Link>
               </li>
               <li>
                 <i className="ti-video-camera"></i>
-                <Link to="/videos" >
-                  videos
-                </Link>
+                <Link to="/videos">videos</Link>
               </li>
               <li>
                 <i className="ti-comments-smiley"></i>
-                <Link to="/chats" >
-                  Chats
-                </Link>
+                <Link to="/chats">Chats</Link>
               </li>
               <li>
                 <i className="ti-bell"></i>
-                <Link to="/notifications" >
-                  Notifications
-                </Link>
+                <Link to="/notifications">Notifications</Link>
               </li>
               <li>
                 <i className="ti-share"></i>
-                <Link to="" >
-                  People Nearby
-                </Link>
+                <Link to="/nearby">People Nearby</Link>
               </li>
 
               <li>
                 <i className="ti-power-off"></i>
-                <Link to='/logout' >
-                  Logout
-                </Link>
+                <Link to="/logout">Logout</Link>
               </li>
             </ul>
           </div>
         )}
         {props.layout === 3 && (
-          <div class="widget">
-            <h4 class="widget-title">Profile</h4>
-            <div class="your-page">
+          <div className="widget">
+            <h4 className="widget-title">Profile</h4>
+            <div className="your-page">
               <figure>
-                <a  href="#">
-                  <img alt="" src="images/resources/friend-avatar9.jpg" />
-                </a>
+                <ProfilePic url={props.profileData?.pic} />
               </figure>
-              <div class="page-meta">
-                <a class="underline"  href="#">
+              <div className="page-meta">
+                <a className="underline" >
                   {props.profileData?.name}
                 </a>
                 <span>
-                  <i class="fa fa-users"></i>Friends{" "}
+                  <i className="fa fa-users"></i>Friends{" "}
                   <em>{props.profileData.friendsCount}</em>
                 </span>
                 <span>
-                  <i class="fa fa-user-plus"></i>Followers{" "}
+                  <i className="fa fa-user-plus"></i>Followers{" "}
                   <em>{props.profileData.followersCount}</em>
                 </span>
               </div>
-              <div class="page-likes">
-                <ul class="nav nav-tabs likes-btn">
-                  <li class="nav-item">
-                    <a data-toggle="tab" class="active">
-                      Follow
-                    </a>
+              <div className="page-likes">
+                <ul className="nav nav-tabs likes-btn">
+                  <li className="nav-item">
+                    {props.profileData?.userRelation === "requested" ? (
+                      <div>Requested</div>
+                    ) : (
+                      <a
+                        data-toggle="tab"
+                        className="active pointer"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          swal({
+                            title: "Are you sure?",
+                            icon: "warning",
+                            buttons: true,
+                            dangerMode: true,
+                          }).then((willDelete) => {
+                            if (willDelete) {
+                              handleAddFollower();
+                            }
+                          });
+                        }}
+                      >
+                        Follow
+                      </a>
+                    )}
                   </li>
-                  <li class="nav-item">
-                    <a data-toggle="tab" href="#link2" class="">
+                  <li className="nav-item">
+                    <a
+                      data-toggle="tab"
+                      className="pointer"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        swal({
+                          title: "Are you sure?",
+                          icon: "warning",
+                          buttons: true,
+                          dangerMode: true,
+                        }).then((willDelete) => {
+                          if (willDelete) {
+                          }
+                        });
+                      }}
+                    >
                       Block
                     </a>
                   </li>
                 </ul>
-                <div class="tab-content">
-                  <div id="link1" class="tab-pane active fade show">
-                    <a title="weekly-likes" href="#">
-                      {props.profileData?.username}
-                    </a>
+                <div className="tab-content">
+                  <div className="tab-pane active fade show">
+                    <a title="weekly-likes">{props.profileData?.username}</a>
                   </div>
                 </div>
               </div>

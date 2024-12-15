@@ -9,7 +9,6 @@ import ProfilePic from "../../components/ProfilePic";
 import { DELETE_ITEM, UPDATE_PROFILE } from "../../redux/constants/common";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
-
 import swal from "sweetalert";
 
 export default function Index(props) {
@@ -30,8 +29,8 @@ export default function Index(props) {
     }
   }, [profileData?._id, props.accountId]);
 
-  const handleRemoveFriend = (id) => {
-    return dispatch(removeFriend(id))
+  const handleRemoveFriend = (friend, id) => {
+    return dispatch(removeFriend(friend))
       .then((res) => {
         if (res.data) {
           const newFriendsCount = friendsCount - 1;
@@ -79,7 +78,7 @@ export default function Index(props) {
                   dangerMode: true,
                 }).then((willDelete) => {
                   if (willDelete) {
-                    handleRemoveFriend(item._id);
+                    handleRemoveFriend(item.friend?._id, item._id);
                   }
                 });
               }}
