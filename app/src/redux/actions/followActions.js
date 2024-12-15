@@ -29,6 +29,9 @@ import {
   GET_FOLLOW_USER_DETAIL_REQUEST,
   GET_FOLLOW_USER_DETAIL_SUCCESS,
   GET_FOLLOW_USER_DETAIL_FAILURE,
+  ADD_FOLLOW_REQUEST_REQUEST,
+  ADD_FOLLOW_REQUEST_SUCCESS,
+  ADD_FOLLOW_REQUEST_FAILURE,
 } from "../constants/follow";
 
 export const getFollowers =
@@ -182,6 +185,18 @@ export const getFollowUserDetails = (user) => async (dispatch) => {
   } catch (error) {
     const errMessage = error.response?.data?.message || "Something went wrong";
     dispatch({ type: GET_FOLLOW_USER_DETAIL_FAILURE, payload: error.message });
+    return Promise.reject(errMessage);
+  }
+};
+export const addFollowRequest = (user) => async (dispatch) => {
+  try {
+    dispatch({ type: ADD_FOLLOW_REQUEST_REQUEST });
+    const response = await axios.post(`/follow/add-request/${user}`);
+    dispatch({ type: ADD_FOLLOW_REQUEST_SUCCESS, payload: response });
+    return Promise.resolve(response);
+  } catch (error) {
+    const errMessage = error.response?.data?.message || "Something went wrong";
+    dispatch({ type: ADD_FOLLOW_REQUEST_FAILURE, payload: error.message });
     return Promise.reject(errMessage);
   }
 };

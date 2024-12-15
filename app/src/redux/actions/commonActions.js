@@ -27,6 +27,9 @@ import {
   UPDATE_PROFILE_REQUEST,
   UPDATE_PROFILE_SUCCESS,
   UPDATE_PROFILE_FAILURE,
+  GET_NEARBY_USERS_REQUEST,
+  GET_NEARBY_USERS_SUCCESS,
+  GET_NEARBY_USERS_FAILURE,
 } from "../constants/common";
 
 export const getProfile = () => async (dispatch) => {
@@ -182,6 +185,27 @@ export const updateProfile = (data) => async (dispatch) => {
       error.response?.data?.message || "Something went wrong";
     dispatch({
       type: UPDATE_PROFILE_FAILURE,
+      error: error.message,
+    });
+    return Promise.reject(errMessage);
+  }
+};
+
+export const getNearByUsers = ({ page, limit }) => async (dispatch) => {
+  try {
+    dispatch({ type: FETCH_ITEMS_REQUEST });
+    const response = await axios.get("/users/nearby", {
+      params: { page, limit },
+    });
+    dispatch({
+      type: FETCH_ITEMS_SUCCESS,
+      payload: { ...response.data.data },
+    });
+    return Promise.resolve(response.data);
+  } catch (error) {
+    const errMessage = error.response?.data?.message || "Something went wrong";
+    dispatch({
+      type: FETCH_ITEMS_FAILURE,
       error: error.message,
     });
     return Promise.reject(errMessage);
