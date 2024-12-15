@@ -161,7 +161,6 @@ exports.confirmFriend = async (req, res) => {
       follower: req.params.id,
     }).session(session);
     if (!isFollower) {
-
       return responseHelper.error(res, null, "You are not a follower", 404);
     }
 
@@ -181,19 +180,17 @@ exports.confirmFriend = async (req, res) => {
     await User.updateMany(
       { _id: { $in: [userId, req.params.id] } },
       { $inc: { friendsCount: 1 } },
-      { session } 
+      { session }
     );
 
     await User.findByIdAndUpdate(
       userId,
       { $inc: { followersCount: -1 } },
-      { session } 
+      { session }
     );
 
-    
     await session.commitTransaction();
 
-    
     userActivityListener.emit("userActivity", {
       userId,
       type: "newFriend",
@@ -212,10 +209,11 @@ exports.confirmFriend = async (req, res) => {
 exports.deleteFollowRequest = async (req, res) => {
   const session = await mongoose.startSession();
   try {
+    const { userId } = req.user;
     session.startTransaction();
 
     const followRequest = await FollowRequest.findOneAndUpdate(
-      { _id: req.params.id, user: req.user.userId },
+      { _id: req.params.id, user: userId },
       {
         status: "rejected",
       }
@@ -224,7 +222,7 @@ exports.deleteFollowRequest = async (req, res) => {
       return responseHelper.error(res, null, "Request not found", 404);
     }
 
-    await User.findByIdAndUpdate(req.user.userId, {
+    await User.findByIdAndUpdate(userId, {
       $inc: { requestsCount: -1 },
     }).session(session);
 
@@ -242,13 +240,57 @@ exports.deleteFollowRequest = async (req, res) => {
     session.endSession();
   }
 };
+
+exports.addFollowRequest = async (req, res) => {
+  const session = await mongoose.startSession();
+  try {
+    const { userId } = req.user;
+    session.startTransaction();
+
+    const isAlreadyRequest = await FollowRequest.findOne({
+      user: req.params.id,
+      requestUser: userId,
+    }).session(session);
+
+    if (isAlreadyRequest) {
+      return responseHelper.error(res, null, "Request already sent", 400);
+    }
+    const followRequest = await FollowRequest.create(
+      [
+        {
+          user: req.params.id,
+          requestUser: userId,
+        },
+      ],
+      { session }
+    );
+    if (followRequest) {
+      await User.findByIdAndUpdate(req.params.id, {
+        $inc: { requestsCount: 1 },
+      }).session(session);
+
+      await session.commitTransaction();
+
+      return responseHelper.success(
+        res,
+        followRequest,
+        "Request sent successfully",
+        201
+      );
+    }
+  } catch (error) {
+    return responseHelper.error(res, error, "Failed to send request", 500);
+  }
+};
+
 exports.confirmFollowRequest = async (req, res) => {
   const session = await mongoose.startSession();
   try {
+    const { userId } = req.user;
     session.startTransaction();
     const followRequest = await FollowRequest.findOne({
       _id: req.params.id,
-      user: req.user.userId,
+      user: userId,
     });
     if (!followRequest) {
       return responseHelper.error(res, null, "Request not found", 404);
@@ -257,7 +299,7 @@ exports.confirmFollowRequest = async (req, res) => {
     const follower = await Follower.create(
       [
         {
-          user: req.user.userId,
+          user: userId,
           follower: followRequest.requestUser,
         },
       ],
@@ -266,7 +308,7 @@ exports.confirmFollowRequest = async (req, res) => {
     if (follower) {
       await followRequest.deleteOne({ session });
 
-      await User.findByIdAndUpdate(req.user.userId, {
+      await User.findByIdAndUpdate(userId, {
         $inc: { followersCount: 1, requestsCount: -1 },
       });
 
@@ -289,24 +331,27 @@ exports.confirmFollowRequest = async (req, res) => {
 exports.removeFriend = async (req, res) => {
   const session = await mongoose.startSession();
   try {
+    const { userId } = req.user;
+
     session.startTransaction();
 
     const isFriend = await Friend.findOne({
-      $or: [{ user: req.user.userId }, { friend: req.user.userId }],
-      _id: req.params.id,
+      user: userId,
+      friend: req.params.id,
     });
+
     if (!isFriend) {
-      return responseHelper.error(res, null, "You are not a friend", 404);
+      return responseHelper.error(res, null, "You are not a friend", 400);
     }
-    const friend = await Friend.findByIdAndDelete(req.params.id).session(
-      session
-    );
-    if (!friend) {
-      return responseHelper.error(res, null, "Friend not found", 404);
-    }
+    await Friend.deleteMany({
+      $or: [
+        { user: userId, friend: req.params.id },
+        { friend: userId, user: req.params.id },
+      ],
+    }).session(session);
 
     await User.updateMany(
-      { _id: { $in: [req.user.userId, isFriend.friend] } },
+      { _id: { $in: [userId, req.params.id] } },
       {
         $inc: { friendsCount: -1 },
       }
@@ -321,7 +366,6 @@ exports.removeFriend = async (req, res) => {
       200
     );
   } catch (error) {
-
     return responseHelper.error(res, error, "Failed to remove friend", 500);
   } finally {
     session.endSession();
@@ -576,7 +620,7 @@ exports.getFollowUserDetails = async (req, res) => {
         $lookup: {
           from: "followrequests",
           localField: "_id",
-          foreignField: "requestUser",
+          foreignField: "user",
           as: "requestedUsers",
         },
       },
@@ -585,7 +629,7 @@ exports.getFollowUserDetails = async (req, res) => {
         $lookup: {
           from: "friends",
           localField: "_id",
-          foreignField: "friend",
+          foreignField: "user",
           as: "friends",
         },
       },
@@ -601,7 +645,7 @@ exports.getFollowUserDetails = async (req, res) => {
                         input: "$friends",
                         as: "friend",
                         cond: {
-                          $eq: ["$$friend.user", convertToObjectId(userId)],
+                          $eq: ["$$friend.friend", convertToObjectId(userId)],
                         },
                       },
                     },
@@ -643,7 +687,7 @@ exports.getFollowUserDetails = async (req, res) => {
                                 as: "requestedUsers",
                                 cond: {
                                   $eq: [
-                                    "$$requestedUsers.user",
+                                    "$$requestedUsers.requestUser",
                                     convertToObjectId(userId),
                                   ],
                                 },
@@ -663,34 +707,23 @@ exports.getFollowUserDetails = async (req, res) => {
           },
         },
       },
-      {
-        $addFields: {
-          friendsCount: { $size: "$friends" }, // Add a field to count the number of friends
-        },
-      },
-      {
-        $addFields: {
-          followersCount: { $size: "$followers" }, // Add a field to count the number of followers
-        },
-      },
+
       {
         $project: {
           password: 0,
           recentActivity: 0,
           fcmToken: 0,
-          friends: 0,
-          followers: 0,
-          following: 0,
-          requestedUsers: 0,
+       
         },
       },
     ]);
+   
     if (!user || user.length === 0) {
       return responseHelper.error(res, null, "User not found", 404);
     }
     return responseHelper.success(res, user[0], "Success", 200);
   } catch (error) {
-    console.log(error);
+    
     return responseHelper.error(res, error, "Failed to get user details", 500);
   }
 };

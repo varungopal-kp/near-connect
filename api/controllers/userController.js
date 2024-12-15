@@ -48,11 +48,13 @@ exports.getUserById = async (req, res) => {
 // Get user profile
 exports.getUserProfile = async (req, res) => {
   try {
-  
+    const { userId } = req.user;
+    // const lat = await geocode("683511");
+    // console.log(lat);
     const user = await User.aggregate([
       {
         $match: {
-          _id: convertToObjectId(req.user.userId),
+          _id: convertToObjectId(userId),
         },
       },
       {
@@ -371,5 +373,58 @@ exports.updateProfile = async (req, res) => {
     return responseHelper.success(res, user, "Profile updated", 200);
   } catch (error) {
     return responseHelper.error(res, error, "Error updating profile", 500);
+  }
+};
+exports.getNearbyUsers = async (req, res) => {
+  try {
+    const { userId } = req.user;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+    const user = await User.findById(userId);
+    if (!user) {
+      return responseHelper.error(res, null, "User not found", 404);
+    }
+  
+    const list = await User.find({
+      location: {
+        $near: {
+          $geometry: { type: "Point", coordinates: user.location.coordinates },
+          $maxDistance: 50000, // 50km
+        },
+      },
+      _id: { $ne: userId },
+    })
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .skip(skip);
+    let totalItems = await User.find({
+      location: {
+        $near: {
+          $geometry: { type: "Point", coordinates: user.location.coordinates },
+          $maxDistance: 50000, // 50km
+        },
+      },
+      _id: { $ne: userId },
+    });
+    totalItems = totalItems?.length || 0;
+    const totalPages = Math.ceil(totalItems / limit);
+    const hasMore = skip + limit < totalItems;
+
+    return responseHelper.success(
+      res,
+      {
+        list,
+        totalPages,
+        totalItems,
+        currentPage: page,
+        hasMore,
+      },
+      "Successfull",
+      200
+    );
+  } catch (error) {
+    console.log(error);
+    return responseHelper.error(res, error, "Error getting nearby users", 500);
   }
 };

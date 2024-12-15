@@ -33,19 +33,21 @@ const UserSchema = new Schema(
     place: { type: String },
     pincode: { type: String },
     location: {
-      type: { type: String, enum: ['Point'], required: true },  // 'Point' for GeoJSON standard
+      type: { type: String, enum: ["Point"], required: true }, // 'Point' for GeoJSON standard
       coordinates: { type: [Number], required: true }, // [longitude, latitude]
     },
     followersCount: { type: Number, default: 0 },
     friendsCount: { type: Number, default: 0 },
     requestsCount: { type: Number, default: 0 },
-    about: { type: String },
+    about: { type: String, default: "Hi, lets connect!" },
     gender: { type: String },
     dob: { type: Date },
     fcmToken: { type: String },
   },
   { timestamps: true } // Automatically adds createdAt and updatedAt fields
 );
+
+UserSchema.index({ location: "2dsphere" });
 
 // Remove password from the response
 UserSchema.methods.toJSON = function () {

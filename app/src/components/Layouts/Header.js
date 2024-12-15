@@ -91,7 +91,7 @@ export default function Header(props) {
     dispatch(logout());
     navigate("/login");
   };
- 
+
   return (
     <>
       {" "}
@@ -191,48 +191,54 @@ export default function Header(props) {
             <div class="add-btn" style={{ right: "200px" }}>
               <span></span>
               <p className="follw-text">
-              {props.profileData?.friendsCount} friends
-              </p>
-            </div><div class="add-btn">
-              <span></span>
-              <p className="follw-text">
-              {props.profileData?.followersCount} followers
+                {props.profileData?.friendsCount} friends
               </p>
             </div>
-            <form class="edit-phto pointer">
-              <i class="fa fa-camera-retro"></i>
-              <label class="fileContainer">
-                Edit Cover Photo
-                <input
-                  type="file"
-                  accept="image/*"
-                  ref={fileBackgroundInputRef}
-                  style={{ display: "none" }}
-                  onChange={(e) => handleProfileFileChange(e, "background")}
-                />
-              </label>
-            </form>
+            <div class="add-btn">
+              <span></span>
+              <p className="follw-text">
+                {props.profileData?.followersCount} followers
+              </p>
+            </div>
+            {props.layout === 1 && (
+              <form class="edit-phto pointer">
+                <i class="fa fa-camera-retro"></i>
+                <label class="fileContainer">
+                  Edit Cover Photo
+                  <input
+                    type="file"
+                    accept="image/*"
+                    ref={fileBackgroundInputRef}
+                    style={{ display: "none" }}
+                    onChange={(e) => handleProfileFileChange(e, "background")}
+                  />
+                </label>
+              </form>
+            )}
+
             <div class="container-fluid">
               <div class="row merged">
                 <div class="col-lg-2 col-sm-3">
                   <div class="user-avatar">
                     <figure>
-                      <ProfilePic profile />
-                      <form class="edit-phto pointer">
-                        <i class="fa fa-camera-retro"></i>
-                        <label class="fileContainer">
-                          Edit Display Photo
-                          <input
-                            type="file"
-                            accept="image/*"
-                            ref={fileProfileInputRef}
-                            style={{ display: "none" }}
-                            onChange={(e) =>
-                              handleProfileFileChange(e, "profile")
-                            }
-                          />
-                        </label>
-                      </form>
+                      <ProfilePic url={props.profileData?.pic} />
+                      {props.layout === 1 && (
+                        <form class="edit-phto pointer">
+                          <i class="fa fa-camera-retro"></i>
+                          <label class="fileContainer">
+                            Edit Display Photo
+                            <input
+                              type="file"
+                              accept="image/*"
+                              ref={fileProfileInputRef}
+                              style={{ display: "none" }}
+                              onChange={(e) =>
+                                handleProfileFileChange(e, "profile")
+                              }
+                            />
+                          </label>
+                        </form>
+                      )}
                     </figure>
                   </div>
                 </div>

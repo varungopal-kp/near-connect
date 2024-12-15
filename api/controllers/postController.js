@@ -14,11 +14,12 @@ const { generateThumbnail } = require("../helpers/fileUpload");
 // create a new post
 exports.createPost = async (req, res) => {
   try {
+    const {userId} = req.user;
     const { content, fileType } = req.body;
 
     const data = {
       content,
-      user: req.user.userId,
+      user: userId,
     };
 
     if (fileType && req.file) {
@@ -31,7 +32,7 @@ exports.createPost = async (req, res) => {
     await newPost.populate("user");
 
     userActivityListener.emit("userActivity", {
-      userId: req.user.userId,
+      userId: userId,
       type: "newPost",
     });
 
