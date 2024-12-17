@@ -1,20 +1,21 @@
 const Post = require("../models/post");
+const Photo = require("../models/photo");
+const Video = require("../models/video");
+const User = require("../models/user");
+const mongoose = require("mongoose");
+const PostInteraction = require("../models/postInteraction");
+const { convertToObjectId } = require("../helpers/mongoUtils");
+const userActivityListener = require("../helpers/Events/userActivityListener");
+const { sendNotification } = require("../helpers/notificationHelper");
 const responseHelper = require("../helpers/responseHelper");
 const { replaceFileUrl } = require("../helpers/utility");
 const { postSchema } = require("../validations/postSchema");
-const PostInteraction = require("../models/postInteraction");
-const { convertToObjectId } = require("../helpers/mongoUtils");
-const mongoose = require("mongoose");
-const userActivityListener = require("../helpers/Events/userActivityListener");
-const { sendNotification } = require("../helpers/notificationHelper");
-const Photo = require("../models/photo");
-const Video = require("../models/video");
 const { generateThumbnail } = require("../helpers/fileUpload");
 
 // create a new post
 exports.createPost = async (req, res) => {
   try {
-    const {userId} = req.user;
+    const { userId } = req.user;
     const { content, fileType } = req.body;
 
     const data = {
@@ -185,10 +186,54 @@ exports.list = async (req, res) => {
   try {
     const skip = (page - 1) * limit;
 
+    let relatedUsers = [convertToObjectId(user)];
+
+    if (!req.query.user) {
+      const friendsAndFollowedUsers = await User.aggregate([
+        {
+          $match: { _id: convertToObjectId(user) }, // Match the current user
+        },
+        {
+          $lookup: {
+            from: "friends", // Assuming you have a "friends" collection
+            localField: "_id",
+            foreignField: "user",
+            as: "friends",
+          },
+        },
+        {
+          $lookup: {
+            from: "followers", // Assuming you have a "follows" collection
+            localField: "_id",
+            foreignField: "user",
+            as: "followers",
+          },
+        },
+        {
+          $project: {
+            friends: "$friends.friend", // Extract only the friend IDs
+            followers: "$followers.follower", // Extract only the followed user IDs
+          },
+        },
+        {
+          $addFields: {
+            relatedUsers: { $setUnion: [["$_id"], "$friends", "$followers"] }, // Combine user ID, friends, and followed users
+          },
+        },
+        {
+          $project: {
+            relatedUsers: 1, // Return only the relatedUsers field
+          },
+        },
+      ]);
+
+      relatedUsers = friendsAndFollowedUsers[0]?.relatedUsers || [];
+    }
+
     const list = await Post.aggregate([
       {
         $match: {
-          user: convertToObjectId(user),
+          user: { $in: relatedUsers }, // Match posts from the user, their friends, and followed users
         },
       },
       {
@@ -291,7 +336,9 @@ exports.list = async (req, res) => {
       { $limit: limit },
     ]);
 
-    const totalItems = await Post.countDocuments({ user: user });
+    const totalItems = await Post.countDocuments({
+      user: { $in: relatedUsers },
+    });
     const totalPages = Math.ceil(totalItems / limit);
     const hasMore = skip + limit < totalItems;
 
@@ -422,7 +469,7 @@ exports.uploadVideo = async (req, res) => {
     if (!req.file) {
       return responseHelper.validationError(res, errors, "Invalid input data");
     }
-    
+
     data.path = replaceFileUrl(req.file.path);
     data.mimeType = req.file.mimetype;
     data.fileSize = req.file.size;

@@ -360,10 +360,11 @@ export default function RightSidebar(props) {
               <div class="page-likes">
                 <ul class="nav nav-tabs likes-btn">
                   <li class="nav-item">
-                    <button
-                      type="button"
-                      class="btn btn-default btn-sm"
-                      onClick={() => {
+                    <a
+                      data-toggle="tab"
+                      className=" pointer"
+                      onClick={(e) => {
+                        e.preventDefault();
                         swal({
                           title: "Are you sure?",
                           icon: "warning",
@@ -376,8 +377,8 @@ export default function RightSidebar(props) {
                         });
                       }}
                     >
-                      unfriend
-                    </button>
+                      Remove friend
+                    </a>
                   </li>
                 </ul>
               </div>

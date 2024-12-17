@@ -20,6 +20,7 @@ import PhotoPage from "./containers/PhotoPage/index";
 import VideoPage from "./containers/VideoPage/index";
 import ProfilePage from "./containers/ProfilePage/index";
 import NearbyPage from "./containers/NearbyPage/index";
+import PostPage from "./containers/PostPage/index";
 import Loader from "./components/Loader/index";
 
 function App() {
@@ -96,6 +97,14 @@ function App() {
             element={
               <Layout>
                 <NearbyPage />
+              </Layout>
+            }
+          />
+           <Route
+            path="/posts"
+            element={
+              <Layout>
+                <PostPage />
               </Layout>
             }
           />

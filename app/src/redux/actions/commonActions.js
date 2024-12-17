@@ -30,6 +30,12 @@ import {
   GET_NEARBY_USERS_REQUEST,
   GET_NEARBY_USERS_SUCCESS,
   GET_NEARBY_USERS_FAILURE,
+  BLOCK_USER_REQUEST,
+  BLOCK_USER_SUCCESS,
+  BLOCK_USER_FAILURE,
+  UNBLOCK_USER_REQUEST,
+  UNBLOCK_USER_SUCCESS,
+  UNBLOCK_USER_FAILURE,
 } from "../constants/common";
 
 export const getProfile = () => async (dispatch) => {
@@ -161,8 +167,7 @@ export const updateProfileImage = (data) => async (dispatch) => {
     });
     return Promise.resolve(response.data);
   } catch (error) {
-    const errMessage =
-      error.response?.data?.message || "Something went wrong";
+    const errMessage = error.response?.data?.message || "Something went wrong";
     dispatch({
       type: UPDATE_PROFILE_IMAGE_FAILURE,
       error: error.message,
@@ -181,8 +186,7 @@ export const updateProfile = (data) => async (dispatch) => {
     });
     return Promise.resolve(response.data);
   } catch (error) {
-    const errMessage =
-      error.response?.data?.message || "Something went wrong";
+    const errMessage = error.response?.data?.message || "Something went wrong";
     dispatch({
       type: UPDATE_PROFILE_FAILURE,
       error: error.message,
@@ -191,21 +195,60 @@ export const updateProfile = (data) => async (dispatch) => {
   }
 };
 
-export const getNearByUsers = ({ page, limit }) => async (dispatch) => {
+export const getNearByUsers =
+  ({ page, limit }) =>
+  async (dispatch) => {
+    try {
+      dispatch({ type: FETCH_ITEMS_REQUEST });
+      const response = await axios.get("/users/nearby", {
+        params: { page, limit },
+      });
+      dispatch({
+        type: FETCH_ITEMS_SUCCESS,
+        payload: { ...response.data.data },
+      });
+      return Promise.resolve(response.data);
+    } catch (error) {
+      const errMessage =
+        error.response?.data?.message || "Something went wrong";
+      dispatch({
+        type: FETCH_ITEMS_FAILURE,
+        error: error.message,
+      });
+      return Promise.reject(errMessage);
+    }
+  };
+export const blockUser = (data) => async (dispatch) => {
   try {
-    dispatch({ type: FETCH_ITEMS_REQUEST });
-    const response = await axios.get("/users/nearby", {
-      params: { page, limit },
-    });
+    dispatch({ type: BLOCK_USER_REQUEST });
+    const response = await axios.post("/users/block", data);
     dispatch({
-      type: FETCH_ITEMS_SUCCESS,
-      payload: { ...response.data.data },
+      type: BLOCK_USER_SUCCESS,
+      payload: response.data,
     });
     return Promise.resolve(response.data);
   } catch (error) {
     const errMessage = error.response?.data?.message || "Something went wrong";
     dispatch({
-      type: FETCH_ITEMS_FAILURE,
+      type: BLOCK_USER_FAILURE,
+      error: error.message,
+    });
+    return Promise.reject(errMessage);
+  }
+};
+export const unblockUser = (data) => async (dispatch) => {
+  try {
+    dispatch({ type: UNBLOCK_USER_REQUEST });
+    const response = await axios.post("/users/unblock", data);
+    dispatch({
+      type: UNBLOCK_USER_SUCCESS,
+      payload: response.data,
+    });
+    return Promise.resolve(response.data);
+  } catch (error) {
+    const errMessage = error.response?.data?.message || "Something went wrong";
+    dispatch({
+      type: UNBLOCK_USER_FAILURE,
       error: error.message,
     });
     return Promise.reject(errMessage);

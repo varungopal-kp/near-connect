@@ -3,13 +3,15 @@ import moment from "moment";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
-import { addFollowRequest } from "../../redux/actions/followActions";
+import { addFollowRequest, addFriend } from "../../redux/actions/followActions";
 import swal from "sweetalert";
 import ProfilePic from "../ProfilePic";
+import { blockUser, unblockUser } from "../../redux/actions/commonActions";
 
 export default function LeftSidebar(props) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
   const handleAddFollower = () => {
     try {
       dispatch(addFollowRequest(props.profileData?._id))
@@ -17,6 +19,49 @@ export default function LeftSidebar(props) {
           if (data.data) {
             toast.success("Requested");
             return navigate("/followers");
+          }
+        })
+        .catch((err) => {
+          toast.error(err || "Something went wrong");
+        });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleBlock = (type) => {
+    if (type === "block") {
+      dispatch(blockUser({ blockUserId: props.profileData?._id }))
+        .then((data) => {
+          if (data.data) {
+            toast.success("Blocked");
+            return navigate("/");
+          }
+        })
+        .catch((err) => {
+          toast.error(err || "Something went wrong");
+        });
+    } else {
+      dispatch(unblockUser({ blockUserId: props.profileData?._id }))
+        .then((data) => {
+          if (data.data) {
+            toast.success("Unblocked");
+            return navigate("/");
+          }
+        })
+        .catch((err) => {
+          toast.error(err || "Something went wrong");
+        });
+    }
+  };
+
+  const handleAddFriend = () => {
+    try {
+      dispatch(addFriend(props.profileData?._id))
+        .then((data) => {
+          if (data.data) {
+            toast.success("Friends");
+            return navigate("/friends");
           }
         })
         .catch((err) => {
@@ -36,11 +81,7 @@ export default function LeftSidebar(props) {
             <ul className="short-profile">
               <li>
                 <span>about</span>
-                {props.layout === 4 ? (
-                  <p>{props.accountDetails?.about}</p>
-                ) : (
-                  <p>{props.profileData?.about}</p>
-                )}
+                <p>{props.profileData?.about}</p>
               </li>
             </ul>
           </div>
@@ -90,9 +131,7 @@ export default function LeftSidebar(props) {
                 <ProfilePic url={props.profileData?.pic} />
               </figure>
               <div className="page-meta">
-                <a className="underline" >
-                  {props.profileData?.name}
-                </a>
+                <a className="underline">{props.profileData?.name}</a>
                 <span>
                   <i className="fa fa-users"></i>Friends{" "}
                   <em>{props.profileData.friendsCount}</em>
@@ -104,35 +143,35 @@ export default function LeftSidebar(props) {
               </div>
               <div className="page-likes">
                 <ul className="nav nav-tabs likes-btn">
-                  <li className="nav-item">
-                    {props.profileData?.userRelation === "requested" ? (
-                      <div>Requested</div>
-                    ) : (
-                      <a
-                        data-toggle="tab"
-                        className="active pointer"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          swal({
-                            title: "Are you sure?",
-                            icon: "warning",
-                            buttons: true,
-                            dangerMode: true,
-                          }).then((willDelete) => {
-                            if (willDelete) {
-                              handleAddFollower();
-                            }
-                          });
-                        }}
-                      >
-                        Follow
-                      </a>
-                    )}
-                  </li>
-                  <li className="nav-item">
-                    <a
+                  {!props.profileData?.blockedByYou && (
+                    <li className="nav-item">
+                      {props.profileData?.userRelation === "requested" ? (
+                        <div>Requested</div>
+                      ) : props.profileData?.userRelation === "following" ? (
+                        <div>Following</div>
+                      ) : props.profileData?.userRelation === "follower" ?  (
+                        <a
+                          data-toggle="tab"
+                          className="active pointer"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            swal({
+                              title: "Are you sure?",
+                              icon: "warning",
+                              buttons: true,
+                              dangerMode: true,
+                            }).then((willDelete) => {
+                              if (willDelete) {
+                                handleAddFriend();
+                              }
+                            });
+                          }}
+                        >
+                          Add Friend
+                        </a>
+                      ):<a
                       data-toggle="tab"
-                      className="pointer"
+                      className="active pointer"
                       onClick={(e) => {
                         e.preventDefault();
                         swal({
@@ -142,12 +181,57 @@ export default function LeftSidebar(props) {
                           dangerMode: true,
                         }).then((willDelete) => {
                           if (willDelete) {
+                            handleAddFollower();
                           }
                         });
                       }}
                     >
-                      Block
-                    </a>
+                      Follow
+                    </a>}
+                    </li>
+                  )}
+                  <li className="nav-item">
+                    {props.profileData?.blockedByYou ? (
+                      <a
+                        data-toggle="tab"
+                        className="pointer"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          swal({
+                            title: "Are you sure?",
+                            icon: "warning",
+                            buttons: true,
+                            dangerMode: true,
+                          }).then((willDelete) => {
+                            if (willDelete) {
+                              handleBlock("unblock");
+                            }
+                          });
+                        }}
+                      >
+                        unblock
+                      </a>
+                    ) : (
+                      <a
+                        data-toggle="tab"
+                        className="pointer"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          swal({
+                            title: "Are you sure?",
+                            icon: "warning",
+                            buttons: true,
+                            dangerMode: true,
+                          }).then((willDelete) => {
+                            if (willDelete) {
+                              handleBlock("block");
+                            }
+                          });
+                        }}
+                      >
+                        Block
+                      </a>
+                    )}
                   </li>
                 </ul>
                 <div className="tab-content">

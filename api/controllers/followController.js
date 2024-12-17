@@ -288,12 +288,14 @@ exports.confirmFollowRequest = async (req, res) => {
   try {
     const { userId } = req.user;
     session.startTransaction();
+
     const followRequest = await FollowRequest.findOne({
       _id: req.params.id,
       user: userId,
-    });
+    }).session(session);
+
     if (!followRequest) {
-      return responseHelper.error(res, null, "Request not found", 404);
+      return responseHelper.error(res, null, "Follow request not found", 400);
     }
 
     const follower = await Follower.create(
@@ -310,7 +312,7 @@ exports.confirmFollowRequest = async (req, res) => {
 
       await User.findByIdAndUpdate(userId, {
         $inc: { followersCount: 1, requestsCount: -1 },
-      });
+      }).session(session);
 
       await session.commitTransaction();
 
@@ -634,6 +636,80 @@ exports.getFollowUserDetails = async (req, res) => {
         },
       },
       {
+        $lookup: {
+          from: "blockedusers",
+          localField: "_id",
+          foreignField: "blockedUser",
+          as: "blockedByuser",
+        },
+      },
+      {
+        $lookup: {
+          from: "blockedusers",
+          localField: "_id",
+          foreignField: "user",
+          as: "blocked",
+        },
+      },
+      {
+        $addFields: {
+          blockedByYou: {
+            $cond: [
+              {
+                $gt: [
+                  {
+                    $size: {
+                      $filter: {
+                        input: "$blockedByuser",
+                        as: "blockedByuser",
+                        cond: {
+                          $eq: [
+                            "$$blockedByuser.user",
+                            convertToObjectId(userId),
+                          ],
+                        },
+                      },
+                    },
+                  },
+                  0,
+                ],
+              },
+              true,
+              false,
+            ],
+          },
+        },
+      },
+      {
+        $addFields: {
+          blockedByHim: {
+            $cond: [
+              {
+                $gt: [
+                  {
+                    $size: {
+                      $filter: {
+                        input: "$blocked",
+                        as: "blocked",
+                        cond: {
+                          $eq: [
+                            "$$blocked.blockedUser",
+                            convertToObjectId(userId),
+                          ],
+                        },
+                      },
+                    },
+                  },
+                  0,
+                ],
+              },
+              true,
+              false,
+            ],
+          },
+        },
+      },
+      {
         $addFields: {
           userRelation: {
             $cond: [
@@ -683,11 +759,11 @@ exports.getFollowUserDetails = async (req, res) => {
                           {
                             $size: {
                               $filter: {
-                                input: "$requestedUsers",
-                                as: "requestedUsers",
+                                input: "$followers",
+                                as: "followers",
                                 cond: {
                                   $eq: [
-                                    "$$requestedUsers.requestUser",
+                                    "$$followers.follower",
                                     convertToObjectId(userId),
                                   ],
                                 },
@@ -697,8 +773,32 @@ exports.getFollowUserDetails = async (req, res) => {
                           0,
                         ],
                       },
-                      "requested",
-                      "no relation",
+                      "following",
+                      {
+                        $cond: [
+                          {
+                            $gt: [
+                              {
+                                $size: {
+                                  $filter: {
+                                    input: "$requestedUsers",
+                                    as: "requestedUsers",
+                                    cond: {
+                                      $eq: [
+                                        "$$requestedUsers.requestUser",
+                                        convertToObjectId(userId),
+                                      ],
+                                    },
+                                  },
+                                },
+                              },
+                              0,
+                            ],
+                          },
+                          "requested",
+                          "no relation",
+                        ],
+                      },
                     ],
                   },
                 ],
@@ -713,17 +813,21 @@ exports.getFollowUserDetails = async (req, res) => {
           password: 0,
           recentActivity: 0,
           fcmToken: 0,
-       
+          friends: 0,
+          followers: 0,
+          following: 0,
+          requestedUsers: 0,
+          blockedByuser: 0,
+          blocked: 0,
         },
       },
     ]);
-   
+
     if (!user || user.length === 0) {
       return responseHelper.error(res, null, "User not found", 404);
     }
     return responseHelper.success(res, user[0], "Success", 200);
   } catch (error) {
-    
     return responseHelper.error(res, error, "Failed to get user details", 500);
   }
 };

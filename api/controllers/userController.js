@@ -1,7 +1,12 @@
 const User = require("../models/user");
+const Follower = require("../models/follower");
+const FollowRequest = require("../models/followRequest");
+const Friend = require("../models/friend");
+const BlockedUser = require("../models/blockedUser");
 const responseHelper = require("../helpers/responseHelper");
 const { convertToObjectId } = require("../helpers/mongoUtils");
 const { geocode } = require("../helpers/geoCodeHelper");
+const mongoose = require("mongoose");
 
 // Create a new user
 exports.createUser = async (req, res) => {
@@ -209,76 +214,129 @@ exports.searchUsers = async (req, res) => {
       },
       {
         $lookup: {
-          from: "followers", // Collection name for followers
-          let: { userId: "$_id" },
-          pipeline: [
-            {
-              $match: {
-                $expr: {
-                  $and: [
-                    { $eq: ["$user", convertToObjectId(userId)] },
-                    { $eq: ["$follower", "$$userId"] },
-                  ],
-                },
-              },
-            },
-          ],
-          as: "followerRelation",
+          from: "followers",
+          localField: "_id",
+          foreignField: "user",
+          as: "followers",
         },
       },
+
       {
         $lookup: {
-          from: "friends", // Collection name for friends
-          let: { userId: "$_id" },
-          pipeline: [
-            {
-              $match: {
-                $expr: {
-                  $and: [
-                    { $eq: ["$user", convertToObjectId(userId)] },
-                    { $eq: ["$friend", "$$userId"] },
-                  ],
-                },
-              },
-            },
-          ],
-          as: "friendRelation",
+          from: "followers",
+          localField: "_id",
+          foreignField: "follower",
+          as: "following",
         },
       },
+
       {
         $lookup: {
-          from: "followrequests", // Collection name for requests
-          let: { userId: "$_id" },
-          pipeline: [
-            {
-              $match: {
-                $expr: {
-                  $and: [
-                    { $eq: ["$user", convertToObjectId(userId)] },
-                    { $eq: ["$requestUser", "$$userId"] },
-                  ],
-                },
-              },
-            },
-          ],
-          as: "requestRelation",
+          from: "followrequests",
+          localField: "_id",
+          foreignField: "user",
+          as: "requestedUsers",
+        },
+      },
+
+      {
+        $lookup: {
+          from: "friends",
+          localField: "_id",
+          foreignField: "user",
+          as: "friends",
         },
       },
       {
         $addFields: {
           userRelation: {
             $cond: [
-              { $gt: [{ $size: "$friendRelation" }, 0] },
-              "friend",
+              {
+                $gt: [
+                  {
+                    $size: {
+                      $filter: {
+                        input: "$friends",
+                        as: "friend",
+                        cond: {
+                          $eq: ["$$friend.friend", convertToObjectId(userId)],
+                        },
+                      },
+                    },
+                  },
+                  0,
+                ],
+              },
+              "friends", // If there is a match, relation is `friends`
               {
                 $cond: [
-                  { $gt: [{ $size: "$followerRelation" }, 0] },
+                  {
+                    $gt: [
+                      {
+                        $size: {
+                          $filter: {
+                            input: "$following",
+                            as: "following",
+                            cond: {
+                              $eq: [
+                                "$$following.user",
+                                convertToObjectId(userId),
+                              ],
+                            },
+                          },
+                        },
+                      },
+                      0,
+                    ],
+                  },
                   "follower",
                   {
                     $cond: [
-                      { $gt: [{ $size: "$requestRelation" }, 0] },
-                      "requestUser",
-                      "no relation",
+                      {
+                        $gt: [
+                          {
+                            $size: {
+                              $filter: {
+                                input: "$followers",
+                                as: "followers",
+                                cond: {
+                                  $eq: [
+                                    "$$followers.follower",
+                                    convertToObjectId(userId),
+                                  ],
+                                },
+                              },
+                            },
+                          },
+                          0,
+                        ],
+                      },
+                      "following",
+                      {
+                        $cond: [
+                          {
+                            $gt: [
+                              {
+                                $size: {
+                                  $filter: {
+                                    input: "$requestedUsers",
+                                    as: "requestedUsers",
+                                    cond: {
+                                      $eq: [
+                                        "$$requestedUsers.requestUser",
+                                        convertToObjectId(userId),
+                                      ],
+                                    },
+                                  },
+                                },
+                              },
+                              0,
+                            ],
+                          },
+                          "requested",
+                          "no relation",
+                        ],
+                      },
                     ],
                   },
                 ],
@@ -289,9 +347,9 @@ exports.searchUsers = async (req, res) => {
       },
       {
         $project: {
-          friendRelation: 0,
-          followerRelation: 0,
-          requestRelation: 0,
+          friends: 0,
+          followers: 0,
+          following: 0,
         },
       }, // Exclude intermediate fields
       { $skip: skip },
@@ -385,7 +443,7 @@ exports.getNearbyUsers = async (req, res) => {
     if (!user) {
       return responseHelper.error(res, null, "User not found", 404);
     }
-  
+
     const list = await User.find({
       location: {
         $near: {
@@ -426,5 +484,260 @@ exports.getNearbyUsers = async (req, res) => {
   } catch (error) {
     console.log(error);
     return responseHelper.error(res, error, "Error getting nearby users", 500);
+  }
+};
+exports.blockUser = async (req, res) => {
+  const session = await mongoose.startSession();
+  try {
+    const { userId } = req.user;
+    const { blockUserId } = req.body;
+
+    session.startTransaction();
+
+    const blockedUser = await User.findById(blockUserId).session(session);
+    if (!blockedUser) {
+      return responseHelper.error(res, null, "User not found", 400);
+    }
+
+    const blockedUserExists = await BlockedUser.findOne({
+      user: userId,
+      blockedUser: blockUserId,
+    }).session(session);
+
+    if (blockedUserExists) {
+      return responseHelper.error(res, null, "User already blocked", 400);
+    }
+
+    const isFriend = await Friend.exists({
+      user: userId,
+      friend: blockUserId,
+    }).session(session);
+    const isFollower = await Follower.exists({
+      user: userId,
+      follower: blockUserId,
+    }).session(session);
+    const isFollowing = await Follower.exists({
+      user: blockUserId,
+      follower: userId,
+    }).session(session);
+    const hasSentRequest = await FollowRequest.exists({
+      user: userId,
+      requestUser: blockUserId,
+    }).session(session);
+    const hasReceivedRequest = await FollowRequest.exists({
+      user: blockUserId,
+      requestUser: userId,
+    }).session(session);
+
+    await BlockedUser.create(
+      [
+        {
+          user: userId,
+          blockedUser: blockUserId,
+          friends: !!isFriend,
+          followers: !!isFollower,
+          following: !!isFollowing,
+          sendRequest: !!hasSentRequest,
+          reveivedRequest: !!hasReceivedRequest,
+        },
+      ],
+      { session }
+    );
+
+    if (isFriend) {
+      await Friend.deleteMany([
+        { user: userId, friend: blockUserId },
+        { user: blockUserId, friend: userId },
+      ]).session(session);
+      await User.updateMany(
+        { _id: { $in: [userId, blockUserId] } },
+        {
+          $inc: { friendsCount: -1 },
+        }
+      ).session(session);
+    }
+    if (isFollower) {
+      await Followers.deleteOne({
+        user: userId,
+        follower: blockUserId,
+      }).session(session);
+      await User.findByIdAndUpdate(userId, {
+        $inc: { followersCount: -1 },
+      }).session(session);
+    }
+    if (isFollowing) {
+      await Followers.deleteOne({
+        user: blockUserId,
+        follower: userId,
+      }).session(session);
+      await User.findByIdAndUpdate(blockUserId, {
+        $inc: { followersCount: -1 },
+      }).session(session);
+    }
+    if (hasSentRequest) {
+      await FollowRequest.deleteOne({
+        user: userId,
+        requestUser: blockUserId,
+      }).session(session);
+      await User.findByIdAndUpdate(userId, {
+        $inc: { requestsCount: -1 },
+      }).session(session);
+    }
+    if (hasReceivedRequest) {
+      await FollowRequest.deleteOne({
+        user: blockUserId,
+        requestUser: userId,
+      }).session(session);
+      await User.findByIdAndUpdate(blockUserId, {
+        $inc: { requestsCount: -1 },
+      }).session(session);
+    }
+
+    await session.commitTransaction();
+
+    return responseHelper.success(res, true, "User blocked successfully", 200);
+  } catch (error) {
+    console.log(error);
+    return responseHelper.error(res, error, "Error blocking user", 500);
+  } finally {
+    await session.endSession();
+  }
+};
+
+exports.unblockUser = async (req, res) => {
+  const session = await mongoose.startSession();
+  try {
+    const { userId } = req.user;
+    const { blockUserId } = req.body;
+
+    session.startTransaction();
+
+    // Check if the blocked user exists
+    const blockedUser = await User.findById(blockUserId).session(session);
+    if (!blockedUser) {
+      return responseHelper.error(res, null, "User not found", 400);
+    }
+
+    // Check if the user has blocked this user
+    const blockedUserExists = await BlockedUser.findOne({
+      user: userId,
+      blockedUser: blockUserId,
+    }).session(session);
+
+    if (!blockedUserExists) {
+      return responseHelper.error(res, null, "User is not blocked", 400);
+    }
+
+    // Remove the blocked user relationship
+    await BlockedUser.deleteOne({
+      user: userId,
+      blockedUser: blockUserId,
+    }).session(session);
+
+    // Restore the relationships if they existed before blocking
+    if (blockedUserExists.friends) {
+      // Restore friendship
+      await Friend.create(
+        [
+          { user: userId, friend: blockUserId },
+          { user: blockUserId, friend: userId },
+        ],
+        {
+          session,
+        }
+      );
+      await User.updateMany(
+        { _id: { $in: [userId, blockUserId] } },
+        {
+          $inc: { friendsCount: 1 },
+        }
+      ).session(session);
+    }
+
+    if (blockedUserExists.followers) {
+      // Restore follower relationship
+      await Followers.create(
+        [
+          {
+            user: userId,
+            follower: blockUserId,
+          },
+        ],
+        {
+          session,
+        }
+      );
+      await User.findByIdAndUpdate(userId, {
+        $inc: { followersCount: 1 },
+      }).session(session);
+    }
+
+    if (blockedUserExists.following) {
+      // Restore following relationship
+      await Followers.create(
+        [
+          {
+            user: blockUserId,
+            follower: userId,
+          },
+        ],
+        {
+          session,
+        }
+      );
+      await User.findByIdAndUpdate(blockUserId, {
+        $inc: { followersCount: 1 },
+      }).session(session);
+    }
+
+    if (blockedUserExists.sendRequest) {
+      // Restore sent follow request
+      await FollowRequest.create(
+        [
+          {
+            user: userId,
+            requestUser: blockUserId,
+          },
+        ],
+        {
+          session,
+        }
+      );
+      await User.findByIdAndUpdate(userId, {
+        $inc: { requestsCount: 1 },
+      }).session(session);
+    }
+
+    if (blockedUserExists.reveivedRequest) {
+      // Restore received follow request
+      await FollowRequest.create(
+        [
+          {
+            user: blockUserId,
+            requestUser: userId,
+          },
+        ],
+        {
+          session,
+        }
+      );
+      await User.findByIdAndUpdate(blockUserId, {
+        $inc: { requestsCount: 1 },
+      }).session(session);
+    }
+
+    await session.commitTransaction();
+
+    return responseHelper.success(
+      res,
+      true,
+      "User unblocked successfully",
+      200
+    );
+  } catch (error) {
+    console.log(error);
+    return responseHelper.error(res, error, "Error unblocking user", 500);
+  } finally {
+    await session.endSession();
   }
 };

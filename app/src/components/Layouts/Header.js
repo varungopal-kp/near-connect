@@ -13,6 +13,7 @@ export default function Header(props) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [isActive, setIsActive] = useState(false);
+  const [search, setSearch] = useState("");
   const userSettingsRef = useRef(null); // Reference to the user settings dropdown
   const navUserRef = useRef(null); // Reference to the user image div
 
@@ -130,8 +131,18 @@ export default function Header(props) {
         <div className="top-area">
           <div className="top-search">
             <form method="post" className="">
-              <input type="text" placeholder="Search Friend" />
-              <button data-ripple="">
+              <input
+                type="text"
+                placeholder="Search "
+                onChange={(e) => setSearch(e.target.value)}
+              />
+              <button
+                data-ripple=""
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate(`/search?q=${search}`);
+                }}
+              >
                 <i className="ti-search"></i>
               </button>
             </form>

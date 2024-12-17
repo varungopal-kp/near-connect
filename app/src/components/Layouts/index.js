@@ -38,7 +38,7 @@ export default function Index({ children, layout }) {
                   <LeftSidebar
                     profileData={common.profile}
                     layout={_layout}
-                    accountDetails={common.accountDetails}
+                    
                   />
 
                   {/* Main content section renders children */}

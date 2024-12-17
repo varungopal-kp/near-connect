@@ -25,6 +25,9 @@ router.put(
   }),
   userController.updateProfileImage
 );
+router.post("/block", userController.blockUser);
+router.post("/unblock", userController.unblockUser);
+
 router.get("/:id", userController.getUserById);
 router.put("/:id", userController.updateUser);
 router.delete("/:id", userController.deleteUser);

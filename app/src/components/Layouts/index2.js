@@ -17,13 +17,18 @@ export default function Index({ children }) {
   const { username } = useParams();
 
   const [profile, setProfile] = React.useState({});
+  const [blocked, setBlocked] = React.useState(false);
 
   useEffect(() => {
     dispatch(getProfile());
     dispatch(getFollowUserDetails(username))
       .then((res) => {
         if (res.data) {
-          setProfile(res.data?.data);
+          const data = res.data?.data;
+          if (data.blockedByHim) {
+            return setBlocked(true);
+          }
+          return setProfile(data);
         }
       })
       .catch((err) => {
@@ -41,7 +46,7 @@ export default function Index({ children }) {
 
   return (
     <div className="theme-layout">
-      {_layout !== 0 && profile?._id && (
+      {_layout !== 0 && profile?._id && blocked === false && (
         <>
           {/* Header and Navigation */}
           <Header layout={_layout} profileData={profile} />
