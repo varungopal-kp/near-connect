@@ -741,3 +741,23 @@ exports.unblockUser = async (req, res) => {
     await session.endSession();
   }
 };
+exports.updateFcmToken = async (req, res) => {
+  try {
+    const { userId } = req.user;
+    const { fcmToken } = req.body;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return responseHelper.error(res, null, "User not found", 400);
+    }
+    const updateFcmToken = await User.findByIdAndUpdate(userId, {
+      fcmToken: fcmToken,
+    });
+    if (!updateFcmToken) {
+      return responseHelper.error(res, null, "User not found", 400);
+    }
+    return responseHelper.success(res, updateFcmToken, "Fcm token updated", 200);
+  } catch (error) {
+    return responseHelper.error(res, error, "Error updating fcm token", 500);
+  }
+};

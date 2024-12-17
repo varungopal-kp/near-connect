@@ -26,11 +26,14 @@ export default function Index() {
       .catch((err) => {
         toast.error(err || "Something went wrong");
       });
-
+    
     if (common.totalNotifications) {
       dispatch(updateNotificationSeen())
         .then((res) => {
-          dispatch({ type: UPDATE_DASHBOARD_COUNT, payload: 0 });
+          dispatch({
+            type: UPDATE_DASHBOARD_COUNT,
+            payload: { totalNotifications: 0 },
+          });
         })
         .catch((err) => {
           console.log(err);
@@ -63,7 +66,7 @@ export default function Index() {
               {notification.map((item) => (
                 <li key={item._id}>
                   <figure>
-                    <ProfilePic url={item.pic} defaultSize/>
+                    <ProfilePic url={item.pic} defaultSize />
                   </figure>
                   <div class="notifi-meta">
                     <p>{item.message}</p>

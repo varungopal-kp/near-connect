@@ -27,6 +27,7 @@ router.put(
 );
 router.post("/block", userController.blockUser);
 router.post("/unblock", userController.unblockUser);
+router.put("/fcm-token", userController.updateFcmToken);
 
 router.get("/:id", userController.getUserById);
 router.put("/:id", userController.updateUser);

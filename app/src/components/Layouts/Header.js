@@ -22,23 +22,6 @@ export default function Header(props) {
 
   const common = useSelector((state) => state.common);
 
-  // Function to toggle the dropdown
-  const toggleDropdown = () => {
-    setIsActive((prev) => !prev);
-  };
-
-  // Function to close the dropdown if clicked outside
-  const handleClickOutside = (event) => {
-    if (
-      userSettingsRef.current &&
-      !userSettingsRef.current.contains(event.target) &&
-      navUserRef.current &&
-      !navUserRef.current.contains(event.target)
-    ) {
-      setIsActive(false); // Close the dropdown if clicked outside
-    }
-  };
-
   useEffect(() => {
     dispatch(getDashboardCount()).catch((error) => console.log(error));
   }, []);
@@ -55,6 +38,25 @@ export default function Header(props) {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isActive]);
+
+  
+
+  // Function to toggle the dropdown
+  const toggleDropdown = () => {
+    setIsActive((prev) => !prev);
+  };
+
+  // Function to close the dropdown if clicked outside
+  function handleClickOutside(event) {
+    if (
+      userSettingsRef.current &&
+      !userSettingsRef.current.contains(event.target) &&
+      navUserRef.current &&
+      !navUserRef.current.contains(event.target)
+    ) {
+      setIsActive(false); // Close the dropdown if clicked outside
+    }
+  }
 
   const handleProfileFileChange = (event, type = false) => {
     try {

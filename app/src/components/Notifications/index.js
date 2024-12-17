@@ -3,20 +3,44 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { onMessageListener, requestForToken } from "../../firebase";
 import { UPDATE_DASHBOARD_COUNT } from "../../redux/constants/common";
+import { updateFcmToken } from "../../redux/actions/commonActions";
 
 const Index = () => {
   const dispatch = useDispatch();
   const [notification, setNotification] = useState({ title: "", body: "" });
+  const fcmToken = localStorage.getItem("fcmToken");
 
   const common = useSelector((state) => state.common);
+
+  useEffect(() => {
+    // Check if Service Worker is supported
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.addEventListener("message", (event) => {
+        if (event.data && event.data.type === "BACKGROUND_NOTIFICATION") {
+          const totalNotifications = common.totalNotifications + 1;
+          dispatch({
+            type: UPDATE_DASHBOARD_COUNT,
+            payload: { totalNotifications },
+          });
+          console.log("React background notification:", event.data.payload);
+        }
+      });
+    }
+    // used common for closure issue
+  }, [dispatch, common.totalNotifications]);
 
   useEffect(() => {
     requestNotificationPermission();
 
     const fetchToken = async () => {
-      await requestForToken();
+      const newToken = await requestForToken();
+      if (newToken !== fcmToken) {
+        localStorage.setItem("fcmToken", newToken);
+        dispatch(updateFcmToken({ fcmToken: newToken })).catch((error) =>
+          console.log(error)
+        );
+      }
     };
-
     fetchToken();
   }, []);
 
@@ -35,7 +59,6 @@ const Index = () => {
 
   onMessageListener((payload) => {
     const totalNotifications = common.totalNotifications + 1;
-   
     dispatch({
       type: UPDATE_DASHBOARD_COUNT,
       payload: { totalNotifications },

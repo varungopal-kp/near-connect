@@ -4,10 +4,9 @@
 // Scripts for firebase and firebase messaging
 
 //eslint-disable-next-line
-importScripts('https://www.gstatic.com/firebasejs/8.2.0/firebase-app.js');
+importScripts("https://www.gstatic.com/firebasejs/8.2.0/firebase-app.js");
 //eslint-disable-next-line
-importScripts('https://www.gstatic.com/firebasejs/8.2.0/firebase-messaging.js');
-
+importScripts("https://www.gstatic.com/firebasejs/8.2.0/firebase-messaging.js");
 
 // Initialize the Firebase app in the service worker by passing the generated config
 const firebaseConfig = {
@@ -27,15 +26,24 @@ firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging(); // Retrieve firebase messaging
 
 // Handle incoming messages while the app is not in focus (i.e in the background, hidden behind other tabs, or completely closed).
-messaging.onBackgroundMessage(function(payload) {
-  console.log('Received background message ', payload);
+messaging.onBackgroundMessage(function (payload) {
+  console.log("Received background message ", payload);
 
   const notificationTitle = payload.notification.title;
   const notificationOptions = {
     body: payload.notification.body,
   };
 
-//eslint-disable-next-line
-  self.registration.showNotification(notificationTitle,
-    notificationOptions);
+  //eslint-disable-next-line
+  self.registration.showNotification(notificationTitle, notificationOptions);
+
+  //eslint-disable-next-line
+  self.clients.matchAll({ includeUncontrolled: true }).then((clients) => {
+    clients.forEach((client) => {
+      client.postMessage({
+        type: "BACKGROUND_NOTIFICATION",
+        payload: payload,
+      });
+    });
+  });
 });

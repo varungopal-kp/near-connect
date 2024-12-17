@@ -36,6 +36,9 @@ import {
   UNBLOCK_USER_REQUEST,
   UNBLOCK_USER_SUCCESS,
   UNBLOCK_USER_FAILURE,
+  UPDATE_FCM_REQUEST,
+  UPDATE_FCM_SUCCESS,
+  UPDATE_FCM_FAILURE,
 } from "../constants/common";
 
 export const getProfile = () => async (dispatch) => {
@@ -249,6 +252,25 @@ export const unblockUser = (data) => async (dispatch) => {
     const errMessage = error.response?.data?.message || "Something went wrong";
     dispatch({
       type: UNBLOCK_USER_FAILURE,
+      error: error.message,
+    });
+    return Promise.reject(errMessage);
+  }
+};
+
+export const updateFcmToken = (data) => async (dispatch) => {
+  try {
+    dispatch({ type: UPDATE_FCM_REQUEST });
+    const response = await axios.put("/users/fcm-token", data);
+    dispatch({
+      type: UPDATE_FCM_SUCCESS,
+      payload: response.data,
+    });
+    return Promise.resolve(response.data);
+  } catch (error) {
+    const errMessage = error.response?.data?.message || "Something went wrong";
+    dispatch({
+      type: UPDATE_FCM_FAILURE,
       error: error.message,
     });
     return Promise.reject(errMessage);

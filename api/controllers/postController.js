@@ -37,6 +37,13 @@ exports.createPost = async (req, res) => {
       type: "newPost",
     });
 
+    sendNotification({
+      userId: userId,
+      ff: true,
+      message: `${newPost.user.name} posted a new post`,
+      title: "New Post",
+    });
+
     return responseHelper.success(
       res,
       newPost,
@@ -158,12 +165,12 @@ exports.postIteration = async (req, res) => {
 
     if (userId !== post.user) {
       sendNotification({
-        userIds: [post.user],
-        type: "postInteractions",
-        data: {
-          like: body.like,
-          interactedUser: postIteration.user,
-        },
+        userId: post.user,
+        message: `${postIteration.user.name} ${
+          body.like ? "liked" : "disliked"
+        } your post.`,
+        title: "Post Interaction",
+        pic: postIteration.user.pic,
       });
     }
 
@@ -176,7 +183,6 @@ exports.postIteration = async (req, res) => {
   }
 };
 
-// For test
 exports.list = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;

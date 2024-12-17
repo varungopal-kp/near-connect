@@ -25,7 +25,7 @@ exports.updateSeenStatus = async (req, res) => {
     await Notification.updateMany({ user: userId }, { seen: true });
     return responseHelper.success(
       res,
-      null,
+      true,
       "Notifications marked as seen",
       200
     );

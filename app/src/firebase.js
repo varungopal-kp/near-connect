@@ -22,7 +22,6 @@ export const requestForToken = () => {
   })
     .then((currentToken) => {
       if (currentToken) {
-        console.log("fcmtoken: ", currentToken);
         // Perform any other neccessary action with the token
         return currentToken;
       } else {
@@ -33,6 +32,7 @@ export const requestForToken = () => {
       }
     })
     .catch((err) => {
+      console.log( err);
       console.log("An error occurred while retrieving token. ", err);
     });
 };
