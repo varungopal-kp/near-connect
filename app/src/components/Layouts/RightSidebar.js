@@ -370,8 +370,8 @@ export default function RightSidebar(props) {
                           icon: "warning",
                           buttons: true,
                           dangerMode: true,
-                        }).then((willDelete) => {
-                          if (willDelete) {
+                        }).then((confirm) => {
+                          if (confirm) {
                             handleRemoveFriend(props.profileData._id);
                           }
                         });

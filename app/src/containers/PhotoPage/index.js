@@ -96,8 +96,8 @@ export default function Index(props) {
         icon: "warning",
         buttons: true,
         dangerMode: true,
-      }).then((willDelete) => {
-        if (willDelete) {
+      }).then((confirm) => {
+        if (confirm) {
           dispatch(deletePhoto(id))
             .then((res) => {
               if (res.data) {

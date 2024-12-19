@@ -160,8 +160,8 @@ export default function LeftSidebar(props) {
                               icon: "warning",
                               buttons: true,
                               dangerMode: true,
-                            }).then((willDelete) => {
-                              if (willDelete) {
+                            }).then((confirm) => {
+                              if (confirm) {
                                 handleAddFriend();
                               }
                             });
@@ -179,8 +179,8 @@ export default function LeftSidebar(props) {
                           icon: "warning",
                           buttons: true,
                           dangerMode: true,
-                        }).then((willDelete) => {
-                          if (willDelete) {
+                        }).then((confirm) => {
+                          if (confirm) {
                             handleAddFollower();
                           }
                         });
@@ -202,8 +202,8 @@ export default function LeftSidebar(props) {
                             icon: "warning",
                             buttons: true,
                             dangerMode: true,
-                          }).then((willDelete) => {
-                            if (willDelete) {
+                          }).then((confirm) => {
+                            if (confirm) {
                               handleBlock("unblock");
                             }
                           });
@@ -222,8 +222,8 @@ export default function LeftSidebar(props) {
                             icon: "warning",
                             buttons: true,
                             dangerMode: true,
-                          }).then((willDelete) => {
-                            if (willDelete) {
+                          }).then((confirm) => {
+                            if (confirm) {
                               handleBlock("block");
                             }
                           });

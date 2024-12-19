@@ -84,8 +84,8 @@ export default function Followers(props) {
                   icon: "warning",
                   buttons: true,
                   dangerMode: true,
-                }).then((willDelete) => {
-                  if (willDelete) {
+                }).then((confirm) => {
+                  if (confirm) {
                     handleFollowerRemove(item._id);
                   }
                 });
@@ -105,8 +105,8 @@ export default function Followers(props) {
                   icon: "warning",
                   buttons: true,
                   dangerMode: true,
-                }).then((willDelete) => {
-                  if (willDelete) {
+                }).then((confirm) => {
+                  if (confirm) {
                     handleAddFriend(item._id, item.follower._id);
                   }
                 });

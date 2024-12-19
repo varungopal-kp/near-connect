@@ -183,8 +183,8 @@ export default function Index() {
                       icon: "warning",
                       buttons: true,
                       dangerMode: true,
-                    }).then((willDelete) => {
-                      if (willDelete) {
+                    }).then((confirm) => {
+                      if (confirm) {
                         handlePostDelete(item._id);
                       }
                     });

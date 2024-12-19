@@ -76,8 +76,8 @@ export default function Index(props) {
                   icon: "warning",
                   buttons: true,
                   dangerMode: true,
-                }).then((willDelete) => {
-                  if (willDelete) {
+                }).then((confirm) => {
+                  if (confirm) {
                     handleRemoveFriend(item.friend?._id, item._id);
                   }
                 });

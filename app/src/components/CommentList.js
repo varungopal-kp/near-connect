@@ -216,8 +216,8 @@ export default function Comments(props) {
                               icon: "warning",
                               buttons: true,
                               dangerMode: true,
-                            }).then((willDelete) => {
-                              if (willDelete) {
+                            }).then((confirm) => {
+                              if (confirm) {
                                 handleCommentDelete(item._id);
                               }
                             });

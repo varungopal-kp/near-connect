@@ -87,8 +87,8 @@ export default function FollowerRequest(props) {
                   icon: "warning",
                   buttons: true,
                   dangerMode: true,
-                }).then((willDelete) => {
-                  if (willDelete) {
+                }).then((confirm) => {
+                  if (confirm) {
                     handleDeleteRequest(item._id);
                   }
                 });
@@ -108,8 +108,8 @@ export default function FollowerRequest(props) {
                   icon: "warning",
                   buttons: true,
                   dangerMode: true,
-                }).then((willDelete) => {
-                  if (willDelete) {
+                }).then((confirm) => {
+                  if (confirm) {
                     handleConfirm(item._id);
                   }
                 });
