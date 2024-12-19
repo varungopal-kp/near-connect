@@ -42,6 +42,7 @@ const UserSchema = new Schema(
     about: { type: String, default: "Hi, lets connect!" },
     gender: { type: String },
     dob: { type: Date },
+    thumbnail: { type: String },
     fcmToken: { type: String },
   },
   { timestamps: true } // Automatically adds createdAt and updatedAt fields

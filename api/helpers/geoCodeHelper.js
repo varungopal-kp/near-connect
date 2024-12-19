@@ -26,6 +26,7 @@ async function geocode(pincode) {
   } catch (error) {
     console.log(error);
     console.error("Error geocoding pincode:", error.message);
+    return null;
   }
 }
 

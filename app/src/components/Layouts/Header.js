@@ -39,8 +39,6 @@ export default function Header(props) {
     };
   }, [isActive]);
 
-  
-
   // Function to toggle the dropdown
   const toggleDropdown = () => {
     setIsActive((prev) => !prev);
@@ -164,12 +162,15 @@ export default function Header(props) {
             </li>
           </ul>
           <div className="user-img" onClick={toggleDropdown} ref={navUserRef}>
-            <img src="/images/resources/admin.jpg" alt="" />
+            <ProfilePic profile thumb defaultSize />
             <span className="status f-online"></span>
             <div
               className={`user-setting ${isActive ? "active" : ""}`}
               ref={userSettingsRef} // Reference for the dropdown
             >
+              <Link to="/profile">
+                <i className="ti-user"></i> profile
+              </Link>
               <a
                 href=""
                 onClick={(e) => {

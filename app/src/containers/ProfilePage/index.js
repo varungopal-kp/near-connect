@@ -111,6 +111,7 @@ export default function Index() {
               handleChange,
               handleBlur,
               handleSubmit,
+              resetForm
             }) => (
               <form onSubmit={handleSubmit} method="post">
                 <div class="form-group half">
@@ -118,14 +119,12 @@ export default function Index() {
                   <label class="control-label" for="input">
                     First Name
                   </label>
-                  <i class="mtrl-select"></i>
                 </div>
                 <div class="form-group half">
                   <Field name="lastName" type="text" required />
                   <label class="control-label" for="input">
                     Last Name
                   </label>
-                  <i class="mtrl-select"></i>
                 </div>
 
                 <div class="dob">
@@ -188,14 +187,12 @@ export default function Index() {
                   <label class="control-label" for="input">
                     Place
                   </label>
-                  <i class="mtrl-select"></i>
                 </div>
                 <div class="form-group">
                   <Field name="pincode" type="text" />
                   <label class="control-label" for="input">
-                    Pincode
+                    Pincode (find people nearby)
                   </label>
-                  <i class="mtrl-select"></i>
                 </div>
                 <div class="form-group">
                   <Field
@@ -215,13 +212,15 @@ export default function Index() {
                   <label class="control-label" for="textarea">
                     About Me
                   </label>
-                  <i class="mtrl-select"></i>
                 </div>
                 <div class="submit-btns">
                   <button
                     type="button"
                     class="mtr-btn"
                     style={{ marginRight: "10px" }}
+                    onClick={() => {
+                      resetForm();
+                    }}
                   >
                     <span>Cancel</span>
                   </button>

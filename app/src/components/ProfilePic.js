@@ -28,7 +28,9 @@ export default function ProfilePic(props) {
 
   useEffect(() => {
     if (props.profile && profileData) {
-      if (profileData?.pic) {
+      if (props.thumb) {
+        setImage(`${process.env.REACT_APP_BASE_URL}/${profileData.thumbnail}`);
+      } else if (profileData?.pic) {
         setImage(`${process.env.REACT_APP_BASE_URL}/${profileData.pic}`);
       }
     }

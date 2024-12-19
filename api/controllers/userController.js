@@ -7,6 +7,7 @@ const responseHelper = require("../helpers/responseHelper");
 const { convertToObjectId } = require("../helpers/mongoUtils");
 const { geocode } = require("../helpers/geoCodeHelper");
 const mongoose = require("mongoose");
+const { replaceFileUrl } = require("../helpers/utility");
 
 // Create a new user
 exports.createUser = async (req, res) => {
@@ -54,8 +55,7 @@ exports.getUserById = async (req, res) => {
 exports.getUserProfile = async (req, res) => {
   try {
     const { userId } = req.user;
-    // const lat = await geocode("683511");
-    // console.log(lat);
+
     const user = await User.aggregate([
       {
         $match: {
@@ -108,6 +108,7 @@ exports.getUserProfile = async (req, res) => {
           place: { $first: "$place" },
           pincode: { $first: "$pincode" },
           gender: { $first: "$gender" },
+          thumbnail: { $first: "$thumbnail" },
           recentActivity: { $push: "$recentActivity" },
         },
       },
@@ -128,6 +129,7 @@ exports.getUserProfile = async (req, res) => {
           dob: 1,
           gender: 1,
           pincode: 1,
+          thumbnail: 1,
           recentActivity: {
             $filter: {
               input: "$recentActivity",
@@ -394,9 +396,11 @@ exports.updateProfileImage = async (req, res) => {
     }
     if (type === "profile") {
       user.pic = req.file.path;
+      user.thumbnail = replaceFileUrl(req.file.thumbnailPath);
     } else {
       user.backgroundPic = req.file.path;
     }
+    console.log(user, req.file);
     await user.save();
     return responseHelper.success(res, user, "Profile image updated", 200);
   } catch (error) {
@@ -426,6 +430,14 @@ exports.updateProfile = async (req, res) => {
     user.gender = data.gender;
     user.pincode = data.pincode;
     user.dob = data.dob;
+
+    const lat = await geocode(data.pincode);
+    if (lat) {
+      user.location = {
+        type: "Point",
+        coordinates: [lat.longitude, lat.latitude],
+      };
+    }
 
     await user.save();
     return responseHelper.success(res, user, "Profile updated", 200);
@@ -756,7 +768,12 @@ exports.updateFcmToken = async (req, res) => {
     if (!updateFcmToken) {
       return responseHelper.error(res, null, "User not found", 400);
     }
-    return responseHelper.success(res, updateFcmToken, "Fcm token updated", 200);
+    return responseHelper.success(
+      res,
+      updateFcmToken,
+      "Fcm token updated",
+      200
+    );
   } catch (error) {
     return responseHelper.error(res, error, "Error updating fcm token", 500);
   }
