@@ -5,6 +5,7 @@ const { convertToObjectId } = require("../helpers/mongoUtils");
 const mongoose = require("mongoose");
 const Post = require("../models/post");
 const userActivityListener = require("../helpers/Events/userActivityListener");
+const { sendNotification } = require("../helpers/notificationHelper");
 
 exports.createComment = async (req, res) => {
   const session = await mongoose.startSession();
@@ -23,7 +24,7 @@ exports.createComment = async (req, res) => {
 
     await session.commitTransaction();
 
-    await comment.populate("user");
+    await comment.populate("user", "username name pic");
 
     userActivityListener.emit("userActivity", {
       userId: req.user.userId,
@@ -32,6 +33,14 @@ exports.createComment = async (req, res) => {
         associatedUserId: post.user,
       },
     });
+
+    if (post.user !== req.user.userId) {
+      sendNotification({
+        userId: post.user,
+        message: `${comment.user.name} has commented on your post`,
+        title: "Comment on your post",
+      });
+    }
 
     return responseHelper.success(
       res,
