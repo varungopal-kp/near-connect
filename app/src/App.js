@@ -21,6 +21,7 @@ import VideoPage from "./containers/VideoPage/index";
 import ProfilePage from "./containers/ProfilePage/index";
 import NearbyPage from "./containers/NearbyPage/index";
 import PostPage from "./containers/PostPage/index";
+import ChatPage from "./containers/ChatPage/index";
 import Loader from "./components/Loader/index";
 
 function App() {
@@ -106,6 +107,14 @@ function App() {
             element={
               <Layout>
                 <PostPage />
+              </Layout>
+            }
+          />
+           <Route
+            path="/chats"
+            element={
+              <Layout>
+                <ChatPage />
               </Layout>
             }
           />
