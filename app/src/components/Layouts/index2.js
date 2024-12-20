@@ -11,6 +11,8 @@ import { getFollowUserDetails } from "../../redux/actions/followActions";
 import { toast } from "react-toastify";
 
 export default function Index({ children }) {
+  const token = localStorage.getItem("token");
+
   const dispatch = useDispatch();
   const [_layout, setLayout] = React.useState(0);
 
@@ -20,21 +22,26 @@ export default function Index({ children }) {
   const [blocked, setBlocked] = React.useState(false);
 
   useEffect(() => {
-    dispatch(getProfile());
-    dispatch(getFollowUserDetails(username))
-      .then((res) => {
-        if (res.data) {
-          const data = res.data?.data;
-          if (data.blockedByHim) {
-            return setBlocked(true);
+    if (!token) {
+      window.location.href = "/login";
+    }else{
+      dispatch(getProfile());
+      dispatch(getFollowUserDetails(username))
+        .then((res) => {
+          if (res.data) {
+            const data = res.data?.data;
+            if (data.blockedByHim) {
+              return setBlocked(true);
+            }
+            return setProfile(data);
           }
-          return setProfile(data);
-        }
-      })
-      .catch((err) => {
-        toast.error(err || "Something went wrong");
-      });
+        })
+        .catch((err) => {
+          toast.error(err || "Something went wrong");
+        });
+    }
   }, []);
+
 
   useEffect(() => {
     if (profile?.userRelation === "friends") {
@@ -46,7 +53,7 @@ export default function Index({ children }) {
 
   return (
     <div className="theme-layout">
-      {_layout !== 0 && profile?._id && blocked === false && (
+      {_layout !== 0 && profile?._id && blocked === false && token && (
         <>
           {/* Header and Navigation */}
           <Header layout={_layout} profileData={profile} />

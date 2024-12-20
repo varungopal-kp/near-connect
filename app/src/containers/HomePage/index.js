@@ -84,7 +84,8 @@ export default function Index() {
         .then((data) => {
           toast.success("Successfull");
           if (data.data) {
-            return dispatch({ type: CREATE_ITEM, payload: data.data }); // add items in list
+            const newData = { ...data.data, canModify: true };
+            return dispatch({ type: CREATE_ITEM, payload: newData }); // add items in list
           }
         })
         .catch((err) => {

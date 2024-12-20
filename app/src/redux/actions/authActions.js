@@ -29,7 +29,6 @@ export const login = (email, password) => async (dispatch) => {
     if (response.data.data) {
       localStorage.setItem("token", response.data.data.accessToken);
       localStorage.setItem("rtoken", response.data.data.refreshToken);
-      localStorage.setItem("userId", response.data.data.user?._id);
     }
     return Promise.resolve(response.data);
   } catch (error) {
@@ -75,6 +74,7 @@ export const logout = () => {
   return (dispatch) => {
     localStorage.removeItem("token");
     localStorage.removeItem("rtoken");
+    localStorage.removeItem("fcmToken");
     dispatch({ type: LOGOUT });
   };
 };

@@ -23,12 +23,12 @@ const authReducer = (state = initialState, action) => {
         loading: true,
         error: null,
       };
-    case LOGIN_SUCCESS:
+    case LOGIN_SUCCESS:      
       return {
         ...state,
         loading: false,
-        token: action.payload.token,
-        rtoken: action.payload.rtoken,
+        token: action.payload.accessToken,
+        rtoken: action.payload.refreshToken,
         error: null,
       };
     case LOGIN_FAILURE:

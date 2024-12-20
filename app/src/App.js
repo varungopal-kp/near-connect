@@ -22,7 +22,6 @@ import ProfilePage from "./containers/ProfilePage/index";
 import NearbyPage from "./containers/NearbyPage/index";
 import PostPage from "./containers/PostPage/index";
 import Loader from "./components/Loader/index";
-import { useEffect } from "react";
 
 function App() {
 

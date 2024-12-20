@@ -11,6 +11,7 @@ const Index = () => {
   const fcmToken = localStorage.getItem("fcmToken");
 
   const common = useSelector((state) => state.common);
+  const auth = useSelector((state) => state.auth);
 
   useEffect(() => {
     // Check if Service Worker is supported
@@ -41,8 +42,11 @@ const Index = () => {
         );
       }
     };
-    fetchToken();
-  }, []);
+    if(auth.token){
+      fetchToken();
+    }
+    
+  }, [auth.token]);
 
   const requestNotificationPermission = () => {
     if (Notification.permission === "default") {
