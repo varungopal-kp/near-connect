@@ -4,6 +4,7 @@ import authReducer from "../redux/reducers/authReducer";
 import postReducer from "../redux/reducers/postReducer";
 import commonReducer from "../redux/reducers/commonReducer";
 import followReducer from "./reducers/followReducer";
+import chatReducer from "./reducers/chatReducer";
 
 // Combine multiple reducers (if needed) into a rootReducer
 const rootReducer = combineReducers({
@@ -11,6 +12,7 @@ const rootReducer = combineReducers({
   post: postReducer,
   common: commonReducer,
   connections: followReducer,
+  chats: chatReducer,
 });
 
 // Check if Redux DevTools Extension is installed and use it if available

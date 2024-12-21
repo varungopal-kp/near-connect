@@ -1,12 +1,54 @@
 const Chat = require("../models/chat");
+const Friend = require("../models/friend");
+const responseHelper = require("../helpers/responseHelper");
+const { convertToObjectId } = require("../helpers/mongoUtils");
 
 // Fetch chat history
-exports.getChatHistory = async (userId) => {
+exports.getChatHistory = async (req, res) => {
   try {
-    const chats = await Chat.find({});
-    return chats;
+    const { userId } = req.user;
+    const chats = await Friend.aggregate([
+      {
+        $lookup: {
+          from: "chats",
+          let: { friendId: "$friend" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $or: [
+                    { $eq: ["$receiver", "$$friendId"] },
+                    { $eq: ["$sender", "$$friendId"] }
+                  ]
+                }
+              }
+            },
+            { $sort: { createdAt: -1 } } // Sort within the lookup
+          ],
+          as: "chats",
+        },
+      },
+      {
+        $match: {
+          user: convertToObjectId(userId),
+        },
+      },
+      {
+        $sort: {
+          "chats.createdAt": -1,
+        },
+      },
+    ]);
+    
+
+    return responseHelper.success(
+      res,
+      chats,
+      "Chat history fetched successfully",
+      200
+    );
   } catch (error) {
-    return error;
+    return responseHelper.error(res, error, "Error fetching chat history", 500);
   }
 };
 
