@@ -3,23 +3,17 @@ import { io } from "socket.io-client";
 import List from "./list";
 import Form from "./form";
 import { useDispatch, useSelector } from "react-redux";
-import { getChatHistory } from "../../redux/actions/chatActions";
 
 const socket = io(process.env.REACT_APP_URL);
 
 export default function Index(props) {
   const dispatch = useDispatch();
-  const [messages, setMessages] = useState([]);
-  const [typing, setTyping] = useState(false);
+
+  const [friends, setFriends] = useState([]);
+  const [selectedFriend, setSelectedFriend] = useState(null);
 
   useEffect(() => {
-    dispatch(getChatHistory()).then((res) => {
-      if(res.data) {
-        console.log(res.data);
-      }
-    }).catch((err) => {
-      console.log(err);
-    });
+   
   }, []);
 
   return (
@@ -33,8 +27,8 @@ export default function Index(props) {
             </span>
           </h5>
           <div class="message-box">
-            <List />
-            <Form />
+            <List friends={friends} setSelectedFriend={setSelectedFriend} />
+            {selectedFriend && <Form selectedFriend={selectedFriend} />}
           </div>
         </div>
       </div>

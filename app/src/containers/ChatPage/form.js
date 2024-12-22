@@ -1,65 +1,52 @@
-import React from "react";
+import React, { useState } from "react";
+import ProfilePic from "../../components/ProfilePic";
+import InfiniteScrollList from "../../components/InfiniteScroll";
 
-export default function Form() {
+import { fetchMessageItems } from "../../redux/actions/chatActions";
+
+export default function Form(props) {
+  const [messages, setMessages] = useState([]);
+  const [typing, setTyping] = useState(false);
+
+  const infiniteRender = (item) => {
+    return (
+      <>
+        <li className={`${item.by}`}>
+          <figure>
+            {/* <img src="images/resources/userlist-2.jpg" alt="" /> */}
+          </figure>
+          <p>{item.message}</p>
+        </li>
+        
+      </>
+    );
+  };
+
   return (
-    <div class="peoples-mesg-box">
-      <div class="conversation-head">
+    <div className="peoples-mesg-box">
+      <div className="conversation-head">
         <figure>
-          <img src="images/resources/friend-avatar.jpg" alt="" />
+          <ProfilePic url={props.selectedFriend?.pic} defaultSize />
         </figure>
         <span>
-          jason bourne <i>online</i>
+          {props.selectedFriend?.name} <i>online</i>
         </span>
       </div>
-      <ul class="chatting-area">
-        <li class="you">
-          <figure>
-            <img src="images/resources/userlist-2.jpg" alt="" />
-          </figure>
-          <p>what's liz short for? :)</p>
-        </li>
-        <li class="me">
-          <figure>
-            <img src="images/resources/userlist-1.jpg" alt="" />
-          </figure>
-          <p>Elizabeth lol</p>
-        </li>
-        <li class="me">
-          <figure>
-            <img src="images/resources/userlist-1.jpg" alt="" />
-          </figure>
-          <p>wanna know whats my second guess was?</p>
-        </li>
-        <li class="you">
-          <figure>
-            <img src="images/resources/userlist-2.jpg" alt="" />
-          </figure>
-          <p>yes</p>
-        </li>
-        <li class="me">
-          <figure>
-            <img src="images/resources/userlist-1.jpg" alt="" />
-          </figure>
-          <p>Disney's the lizard king</p>
-        </li>
-        <li class="me">
-          <figure>
-            <img src="images/resources/userlist-1.jpg" alt="" />
-          </figure>
-          <p>i know him 5 years ago</p>
-        </li>
-        <li class="you">
-          <figure>
-            <img src="images/resources/userlist-2.jpg" alt="" />
-          </figure>
-          <p>coooooooooool dude ;)</p>
-        </li>
+      <ul className="chatting-area">
+        <InfiniteScrollList
+          infiniteRender={infiniteRender}
+          limit={10}
+          fetchItems={fetchMessageItems}
+          lastmessage={false}
+          user={props.selectedFriend._id}
+          listKey="messages"
+        />
       </ul>
-      <div class="message-text-container">
+      <div className="message-text-container">
         <form method="post">
           <textarea></textarea>
           <button title="send">
-            <i class="fa fa-paper-plane"></i>
+            <i className="fa fa-paper-plane"></i>
           </button>
         </form>
       </div>

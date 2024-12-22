@@ -160,7 +160,7 @@
     .peoples {
         width: 150px;
     }
-    .peoples > li figure {
+    .peoples  li figure {
         max-width: 25px;
         min-width: 25px;
         width: 25px;
@@ -391,7 +391,7 @@
     .peoples-mesg-box {
         width: 76.5%;
     }
-    .peoples > li figure {
+    .peoples  li figure {
         max-width: 30px;
         min-width: 30px;
         width: 30px;

@@ -46,12 +46,17 @@ export default function Index(props) {
                 </Nav.Link>
                 <span style={{ float: "right" }}>{followersCount}</span>
               </Nav.Item>
-              <Nav.Item>
-                <Nav.Link eventKey="followersRequest" style={{ float: "left" }}>
-                  Follow Requests
-                </Nav.Link>
-                <span style={{ float: "right" }}>{followRequestCount}</span>
-              </Nav.Item>
+              {props.layout !== 4 && (
+                <Nav.Item>
+                  <Nav.Link
+                    eventKey="followersRequest"
+                    style={{ float: "left" }}
+                  >
+                    Follow Requests
+                  </Nav.Link>
+                  <span style={{ float: "right" }}>{followRequestCount}</span>
+                </Nav.Item>
+              )}
             </Nav>
 
             <Tab.Content>
@@ -65,17 +70,19 @@ export default function Index(props) {
                   />
                 )}
               </Tab.Pane>
-              <Tab.Pane eventKey="followersRequest">
-                {key === "followersRequest" && (
-                  <FollowerRequest
-                    setFollowRequestCount={setFollowRequestCount}
-                    setFollowersCount={setFollowersCount}
-                    accountId={props.accountId}
-                    followersCount={followersCount}
-                    followRequestCount={followRequestCount}
-                  />
-                )}
-              </Tab.Pane>
+              {props.layout !== 4 && (
+                <Tab.Pane eventKey="followersRequest">
+                  {key === "followersRequest" && (
+                    <FollowerRequest
+                      setFollowRequestCount={setFollowRequestCount}
+                      setFollowersCount={setFollowersCount}
+                      accountId={props.accountId}
+                      followersCount={followersCount}
+                      followRequestCount={followRequestCount}
+                    />
+                  )}
+                </Tab.Pane>
+              )}
             </Tab.Content>
           </Tab.Container>
         </div>

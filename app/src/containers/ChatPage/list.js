@@ -1,90 +1,36 @@
 import React from "react";
+import ProfilePic from "../../components/ProfilePic";
+import InfiniteScrollList from "../../components/InfiniteScroll";
 
-export default function List() {
+import { fetchItems } from "../../redux/actions/chatActions";
+
+export default function List(props) {
+  const infiniteRender = (item) => {
+    return (
+      <li
+        onClick={() => {
+          props.setSelectedFriend(item.friend);
+        }}
+      >
+        <figure>
+          <ProfilePic url={item.friend?.pic} defaultSize />
+          <span class="status f-online"></span>
+        </figure>
+        <div class="people-name">
+          <span>{item.friend?.name}</span>
+        </div>
+      </li>
+    );
+  };
+
   return (
     <ul class="peoples">
-      <li>
-        <figure>
-          <img src="images/resources/friend-avatar2.jpg" alt="" />
-          <span class="status f-online"></span>
-        </figure>
-        <div class="people-name">
-          <span>Molly cyrus</span>
-        </div>
-      </li>
-      <li>
-        <figure>
-          <img src="images/resources/friend-avatar3.jpg" alt="" />
-          <span class="status f-away"></span>
-        </figure>
-        <div class="people-name">
-          <span>Andrew</span>
-        </div>
-      </li>
-      <li>
-        <figure>
-          <img src="images/resources/friend-avatar.jpg" alt="" />
-          <span class="status f-online"></span>
-        </figure>
-
-        <div class="people-name">
-          <span>jason bourne</span>
-        </div>
-      </li>
-      <li>
-        <figure>
-          <img src="images/resources/friend-avatar4.jpg" alt="" />
-          <span class="status off-online"></span>
-        </figure>
-        <div class="people-name">
-          <span>Sarah Grey</span>
-        </div>
-      </li>
-      <li>
-        <figure>
-          <img src="images/resources/friend-avatar5.jpg" alt="" />
-          <span class="status f-online"></span>
-        </figure>
-        <div class="people-name">
-          <span>bill doe</span>
-        </div>
-      </li>
-      <li>
-        <figure>
-          <img src="images/resources/friend-avatar6.jpg" alt="" />
-          <span class="status f-away"></span>
-        </figure>
-        <div class="people-name">
-          <span>shen cornery</span>
-        </div>
-      </li>
-      <li>
-        <figure>
-          <img src="images/resources/friend-avatar7.jpg" alt="" />
-          <span class="status off-online"></span>
-        </figure>
-        <div class="people-name">
-          <span>kill bill</span>
-        </div>
-      </li>
-      <li>
-        <figure>
-          <img src="images/resources/friend-avatar8.jpg" alt="" />
-          <span class="status f-online"></span>
-        </figure>
-        <div class="people-name">
-          <span>jasmin walia</span>
-        </div>
-      </li>
-      <li>
-        <figure>
-          <img src="images/resources/friend-avatar6.jpg" alt="" />
-          <span class="status f-online"></span>
-        </figure>
-        <div class="people-name">
-          <span>neclos cage</span>
-        </div>
-      </li>
+      <InfiniteScrollList
+        infiniteRender={infiniteRender}
+        limit={20}
+        fetchItems={fetchItems}
+        lastmessage={false}
+      />
     </ul>
   );
 }

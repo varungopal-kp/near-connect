@@ -64,27 +64,30 @@ export default function Index(props) {
               </a>
             </h4>
             <span>{item.friend?.username}</span>
-            <a
-              href="#"
-              title=""
-              class="add-butn more-action"
-              data-ripple=""
-              onClick={(e) => {
-                e.preventDefault();
-                swal({
-                  title: "Are you sure?",
-                  icon: "warning",
-                  buttons: true,
-                  dangerMode: true,
-                }).then((confirm) => {
-                  if (confirm) {
-                    handleRemoveFriend(item.friend?._id, item._id);
-                  }
-                });
-              }}
-            >
-              unfriend
-            </a>
+           
+            {props.layout !== 4 && (
+              <a
+                href="#"
+                title=""
+                class="add-butn more-action"
+                data-ripple=""
+                onClick={(e) => {
+                  e.preventDefault();
+                  swal({
+                    title: "Are you sure?",
+                    icon: "warning",
+                    buttons: true,
+                    dangerMode: true,
+                  }).then((confirm) => {
+                    if (confirm) {
+                      handleRemoveFriend(item.friend?._id, item._id);
+                    }
+                  });
+                }}
+              >
+                unfriend
+              </a>
+            )}
           </div>
         </div>
       </li>

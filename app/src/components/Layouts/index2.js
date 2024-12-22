@@ -24,7 +24,7 @@ export default function Index({ children }) {
   useEffect(() => {
     if (!token) {
       window.location.href = "/login";
-    }else{
+    } else {
       dispatch(getProfile());
       dispatch(getFollowUserDetails(username))
         .then((res) => {
@@ -41,7 +41,6 @@ export default function Index({ children }) {
         });
     }
   }, []);
-
 
   useEffect(() => {
     if (profile?.userRelation === "friends") {
@@ -71,6 +70,7 @@ export default function Index({ children }) {
                       <>
                         {React.cloneElement(children, {
                           accountDetails: profile,
+                          accountId: profile?._id,
                           layout: _layout,
                         })}
                       </>

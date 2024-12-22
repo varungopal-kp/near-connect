@@ -40,6 +40,8 @@ const initialState = {
 };
 
 const itemsReducer = (state = initialState, action) => {
+  const listKey = action.listKey || "list";
+
   switch (action.type) {
     case FETCH_ITEMS_REQUEST:
       return {
@@ -51,7 +53,7 @@ const itemsReducer = (state = initialState, action) => {
       return {
         ...state,
         loading: false,
-        list: [...state.list, ...action.payload.list],
+        [listKey]: [...(state[listKey] || []), ...action.payload.list],
         page: state.page + 1,
         hasMore: action.payload.hasMore,
       };
@@ -61,31 +63,41 @@ const itemsReducer = (state = initialState, action) => {
         loading: false,
         error: action.error,
       };
-    case UPDATE_PAGE:
-      return { ...state, page: action.payload };
     case CREATE_ITEM:
-      const oldList = state.list;
+      const oldList = state[listKey] || [];
+      const updatedList = [action.payload, ...oldList];
       if (state.hasMore) {
-        oldList.pop();
+        updatedList.pop();
       }
       return {
         ...state,
-        list: [action.payload, ...oldList],
+        [listKey]: updatedList,
       };
     case UPDATE_ITEMS:
-      let newList = [...state.list];
-      newList = newList.map((item) =>
-        item._id === action.payload._id ? action.payload : item
-      );
       return {
         ...state,
-        list: newList,
+        [listKey]: (state[listKey] || []).map((item) =>
+          item._id === action.payload._id ? action.payload : item
+        ),
       };
     case DELETE_ITEM:
       return {
         ...state,
-        list: state.list.filter((item) => item._id !== action.payload),
+        [listKey]: (state[listKey] || []).filter(
+          (item) => item._id !== action.payload
+        ),
       };
+    case CLEAR_LIST:
+     
+      return {
+        ...state,
+        [listKey]: [],
+        page: 1,
+        totalPages: 1,
+        hasMore: false,
+      };
+    case UPDATE_PAGE:
+      return { ...state, page: action.payload };
     case GET_PROFILE_REQUEST:
       return {
         ...state,
@@ -105,15 +117,6 @@ const itemsReducer = (state = initialState, action) => {
         ...state,
         loading: false,
         error: action.payload,
-      };
-
-    case CLEAR_LIST:
-      return {
-        ...state,
-        list: [],
-        page: 1,
-        totalPages: 1,
-        hasMore: false,
       };
 
     case GET_DASHBOARD_COUNT_REQUEST:

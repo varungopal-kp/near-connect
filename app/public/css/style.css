@@ -3355,7 +3355,7 @@ nav.breadcrumb {
   width: 100%;
 }
 
-.nearby-contct  li {
+.nearby-contct li {
   background: #fff none repeat scroll 0 0;
   border: 1px solid #eaf1f6;
   display: inline-block;
@@ -3365,11 +3365,11 @@ nav.breadcrumb {
   transition: all 0.15s linear 0s;
 }
 
-.nearby-contct  li:last-child {
+.nearby-contct li:last-child {
   margin-bottom: 0;
 }
 
-.nearby-contct  li:hover {
+.nearby-contct li:hover {
   box-shadow: 0 8px 8px #e1e8ec;
   border-color: transparent;
 }
@@ -4049,9 +4049,10 @@ a.forgot-pwd {
   padding-left: 0;
   position: relative;
   width: 200px;
+  min-height: 500px;
 }
 
-.peoples > li {
+.peoples li {
   border-bottom: 1px solid #e1e8ed;
   cursor: pointer;
   display: inline-block;
@@ -4063,11 +4064,11 @@ a.forgot-pwd {
   transition: all 0.2s linear 0s;
 }
 
-.peoples > li:hover {
+.peoples li:hover {
   background: #fff;
 }
 
-.peoples > li figure {
+.peoples li figure {
   display: inline-block;
   margin-bottom: 0;
   max-width: 45px;
@@ -4109,7 +4110,7 @@ a.forgot-pwd {
   padding-bottom: 0;
 }
 
-.peoples > li span.status {
+.peoples li span.status {
   left: 0;
 }
 
@@ -4120,10 +4121,11 @@ a.forgot-pwd {
   padding-left: 15px;
 }
 
-.peoples-mesg-box > ul.chatting-area {
+.peoples-mesg-box ul.chatting-area {
   display: inline-block;
   list-style: outside none none;
   margin-bottom: 0;
+  min-height: 300px;
   max-height: 722px;
   padding: 40px 15px 10px 0;
   width: 100%;
@@ -4131,13 +4133,13 @@ a.forgot-pwd {
   overflow-x: hidden;
 }
 
-.peoples-mesg-box > ul li {
+.peoples-mesg-box ul li {
   display: inline-block;
   width: 100%;
   margin-bottom: 20px;
 }
 
-.peoples-mesg-box > ul li > figure {
+.peoples-mesg-box ul li figure {
   display: inline-block;
   margin-bottom: 0;
   max-width: 32px;
@@ -4146,9 +4148,9 @@ a.forgot-pwd {
   vertical-align: top;
 }
 
-.peoples-mesg-box > ul > li p {
+.peoples-mesg-box ul li p {
   display: inline-block;
-  font-size: 14px;
+  font-size: 12px;
   line-height: initial;
   margin-bottom: 0;
   margin-left: 10px;
@@ -4177,7 +4179,7 @@ a.forgot-pwd {
   right: -11px;
 }
 
-.peoples-mesg-box > ul > li.you p {
+.peoples-mesg-box ul li.you p {
   background: rgba(202, 239, 142, 0.65);
 }
 
@@ -4193,7 +4195,7 @@ a.forgot-pwd {
   text-align: right;
 }
 
-.peoples-mesg-box > ul li.me p {
+.peoples-mesg-box ul li.me p {
   margin-left: 0;
   margin-right: 10px;
   text-align: left;
@@ -4649,9 +4651,9 @@ canvas {
 .followers > li figure img,
 .invition figure img,
 .nearly-pepls > figure img,
-.peoples > li figure img,
+.peoples li figure img,
 .conversation-head > figure img,
-.peoples-mesg-box > ul li > figure img,
+.peoples-mesg-box ul li figure img,
 .your-page > figure img,
 .notification-box > ul li figure img {
   border-radius: 100%;
@@ -10005,9 +10007,9 @@ aside.sidebar.full-style {
   letter-spacing: 0.5px;
   text-transform: uppercase;
 }
-.gray{
+.gray {
   background-color: gray !important;
 }
-.aquamarine{
+.aquamarine {
   background-color: aquamarine !important;
 }

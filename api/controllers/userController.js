@@ -400,7 +400,7 @@ exports.updateProfileImage = async (req, res) => {
     } else {
       user.backgroundPic = req.file.path;
     }
-    console.log(user, req.file);
+    
     await user.save();
     return responseHelper.success(res, user, "Profile image updated", 200);
   } catch (error) {

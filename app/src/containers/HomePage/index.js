@@ -411,6 +411,7 @@ export default function Index() {
           infiniteRender={infiniteRender}
           limit={10}
           fetchItems={fetchItems}
+          
         />
       </div>
     </div>

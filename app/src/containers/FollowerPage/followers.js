@@ -72,48 +72,52 @@ export default function Followers(props) {
               </a>
             </h4>
             <span>{item.follower?.username}</span>
-            <a
-              href="#"
-              title=""
-              class="add-butn more-action"
-              data-ripple=""
-              onClick={(e) => {
-                e.preventDefault();
-                swal({
-                  title: "Are you sure?",
-                  icon: "warning",
-                  buttons: true,
-                  dangerMode: true,
-                }).then((confirm) => {
-                  if (confirm) {
-                    handleFollowerRemove(item._id);
-                  }
-                });
-              }}
-            >
-              remove
-            </a>
-            <a
-              href="#"
-              title=""
-              class="add-butn"
-              data-ripple=""
-              onClick={(e) => {
-                e.preventDefault();
-                swal({
-                  title: "Are you sure?",
-                  icon: "warning",
-                  buttons: true,
-                  dangerMode: true,
-                }).then((confirm) => {
-                  if (confirm) {
-                    handleAddFriend(item._id, item.follower._id);
-                  }
-                });
-              }}
-            >
-              add friend
-            </a>
+            {props.layout !== 4 && (
+              <>
+                <a
+                  href="#"
+                  title=""
+                  class="add-butn more-action"
+                  data-ripple=""
+                  onClick={(e) => {
+                    e.preventDefault();
+                    swal({
+                      title: "Are you sure?",
+                      icon: "warning",
+                      buttons: true,
+                      dangerMode: true,
+                    }).then((confirm) => {
+                      if (confirm) {
+                        handleFollowerRemove(item._id);
+                      }
+                    });
+                  }}
+                >
+                  remove
+                </a>
+                <a
+                  href="#"
+                  title=""
+                  class="add-butn"
+                  data-ripple=""
+                  onClick={(e) => {
+                    e.preventDefault();
+                    swal({
+                      title: "Are you sure?",
+                      icon: "warning",
+                      buttons: true,
+                      dangerMode: true,
+                    }).then((confirm) => {
+                      if (confirm) {
+                        handleAddFriend(item._id, item.follower._id);
+                      }
+                    });
+                  }}
+                >
+                  add friend
+                </a>
+              </>
+            )}
           </div>
         </div>
       </li>
