@@ -16,8 +16,8 @@
   text-decoration: underline;
 }
 .fa.fa-close:hover {
-  color: red ;
-  cursor: pointer 
+  color: red;
+  cursor: pointer;
 }
 .customOverlay {
   background: rgba(36, 123, 160, 0.7);
@@ -40,6 +40,10 @@
   border: 1px solid transparent;
   background: #088dcd;
 }
-.checkbox input, .form-radio input {
+.checkbox input,
+.form-radio input {
   opacity: 1 !important;
+}
+.link-color {
+  color: cornflowerblue !important;
 }

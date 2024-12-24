@@ -1,7 +1,9 @@
 const Chat = require("../models/chat");
 const Friend = require("../models/friend");
+const User = require("../models/user");
 const responseHelper = require("../helpers/responseHelper");
 const { convertToObjectId } = require("../helpers/mongoUtils");
+const { sendNotification } = require("../helpers/notificationHelper");
 
 exports.getChatMessages = async (req, res) => {
   try {
@@ -38,7 +40,7 @@ exports.getChatMessages = async (req, res) => {
           },
         },
       },
-      { $sort: { createdAt: -1 } },
+      { $sort: { createdAt: 1 } },
       { $skip: skip },
       { $limit: limit },
     ]);
@@ -109,6 +111,7 @@ exports.getChatHistory = async (req, res) => {
                 name: 1,
                 username: 1,
                 pic: 1,
+                online: 1,
               },
             },
           ],
@@ -169,8 +172,69 @@ exports.saveMessage = async (data) => {
   try {
     const chat = new Chat(data);
     await chat.save();
+
+    const friend = await Friend.findOne({
+      user: data.receiver,
+      friend: data.sender,
+    });
+    if (!friend.chat) {
+      await friend.updateOne({ chat: true });
+      sendNotification({
+        userId: [data.receiver],
+        message: `New message`,
+        title: "Chat",
+        data: {
+          type: "CHAT",
+          sender: data.sender,
+        },
+      });
+    }
+
     return chat;
   } catch (err) {
-    return err;
+    console.error(err);
+    throw err;
+  }
+};
+
+exports.setUserOnline = async (userId, socketId) => {
+  try {
+    return await User.updateOne(
+      { _id: userId },
+      { $addToSet: { "online.socketIds": socketId } },
+      { new: true }
+    );
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+exports.setUserOffline = async (socketId) => {
+  try {
+    const user = await exports.getUserBySocketId(socketId);
+
+    if (user) {
+      const updatedUser = await User.findByIdAndUpdate(
+        user._id,
+        { $pull: { "online.socketIds": socketId } },
+        { new: true }
+      ).lean();
+
+      return updatedUser;
+    }
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+exports.getUserBySocketId = async (socketId) => {
+  try {
+    const user = await User.findOne({
+      "online.socketIds": socketId,
+    }).select("username online");
+    return user;
+  } catch (err) {
+    console.error(err);
+    throw err;
   }
 };

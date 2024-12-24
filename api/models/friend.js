@@ -8,10 +8,11 @@ const FriendSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    chat: { type: Boolean, default: false },
   },
   {
     timestamps: true,
   }
 );
 
-module.exports = mongoose.model('Friend',FriendSchema)
+module.exports = mongoose.model("Friend", FriendSchema);

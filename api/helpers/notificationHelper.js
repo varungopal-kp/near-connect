@@ -4,7 +4,14 @@ const Follower = require("../models/follower");
 const Friend = require("../models/friend");
 const admin = require("../config/firebase");
 
-const sendNotification = async ({ userId, message, title, pic, ff }) => {
+const sendNotification = async ({
+  userId,
+  message,
+  title,
+  pic,
+  ff,
+  data = {},
+}) => {
   try {
     console.log("Sending notification to:", userId);
 
@@ -72,7 +79,7 @@ const sendNotification = async ({ userId, message, title, pic, ff }) => {
     await Notification.insertMany(notifications);
 
     // Send notification via FCM
-    await sendPushNotificationToDevice(users, message, title);
+    await sendPushNotificationToDevice(users, message, title, data);
 
     console.log("Notification sent successfully!");
   } catch (error) {
@@ -80,7 +87,7 @@ const sendNotification = async ({ userId, message, title, pic, ff }) => {
   }
 };
 
-const sendPushNotificationToDevice = async (users, message, title) => {
+const sendPushNotificationToDevice = async (users, message, title, data) => {
   try {
     const fcmToken = users.map((user) => user.fcmToken);
 
@@ -98,6 +105,7 @@ const sendPushNotificationToDevice = async (users, message, title) => {
         title: title,
         body: message,
       },
+      data: data,
     };
 
     console.log("Push notification sent to FCM successfully!");

@@ -44,6 +44,10 @@ const UserSchema = new Schema(
     dob: { type: Date },
     thumbnail: { type: String },
     fcmToken: { type: String },
+    online: {
+      socketIds: { type: [String], default: [] },
+      lastSeen: { type: Date },
+    },
   },
   { timestamps: true } // Automatically adds createdAt and updatedAt fields
 );

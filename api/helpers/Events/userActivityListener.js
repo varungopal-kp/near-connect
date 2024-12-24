@@ -31,8 +31,10 @@ eventEmitter.on("userActivity", async (payload) => {
       const data = {
         message: message,
         activity: payload.type,
-        associatedUser: payload.data.associatedUserId,
       };
+      if (payload?.data?.associatedUserId) {
+        data.associatedUser = payload.data?.associatedUserId;
+      }
 
       if (!user.recentActivity) {
         user.recentActivity = [];

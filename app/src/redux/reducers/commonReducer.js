@@ -1,3 +1,4 @@
+import socket from "../../helpers/socket";
 import {
   GET_FOLLOW_USER_DETAIL_FAILURE,
   GET_FOLLOW_USER_DETAIL_REQUEST,
@@ -23,6 +24,11 @@ import {
   UPDATE_PROFILE_IMAGE_REQUEST,
   UPDATE_PROFILE_IMAGE_FAILURE,
   UPDATE_PROFILE,
+  GET_FRIEND_DASHBOARD_REQUEST,
+  GET_FRIEND_DASHBOARD_FAILURE,
+  GET_FRIEND_DASHBOARD_SUCCESS,
+  SELECT_CHAT_USER,
+  UPDATE_DASHBOAD_ONLINE_STATUS,
 } from "./../constants/common";
 
 const initialState = {
@@ -37,6 +43,9 @@ const initialState = {
   totalChats: 0,
   accountDetails: {},
   layout: "1",
+  friends: [],
+  followers: [],
+  chatUser: null,
 };
 
 const itemsReducer = (state = initialState, action) => {
@@ -65,10 +74,19 @@ const itemsReducer = (state = initialState, action) => {
       };
     case CREATE_ITEM:
       const oldList = state[listKey] || [];
-      const updatedList = [action.payload, ...oldList];
-      if (state.hasMore) {
-        updatedList.pop();
+      let updatedList = [];
+      if (action.reverse) {
+        updatedList = [...oldList, action.payload];
+        if (state.hasMore) {
+          updatedList.shift();
+        }
+      } else {
+        updatedList = [action.payload, ...oldList];
+        if (state.hasMore) {
+          updatedList.pop();
+        }
       }
+
       return {
         ...state,
         [listKey]: updatedList,
@@ -88,7 +106,6 @@ const itemsReducer = (state = initialState, action) => {
         ),
       };
     case CLEAR_LIST:
-     
       return {
         ...state,
         [listKey]: [],
@@ -196,6 +213,46 @@ const itemsReducer = (state = initialState, action) => {
           ...action.payload,
         },
       };
+    case GET_FRIEND_DASHBOARD_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+        friends: [],
+      };
+    case GET_FRIEND_DASHBOARD_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+        friends: action.payload,
+      };
+    case GET_FRIEND_DASHBOARD_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case SELECT_CHAT_USER:
+      return {
+        ...state,
+        chatUser: action.payload,
+      };
+    case UPDATE_DASHBOAD_ONLINE_STATUS:
+      const newFriends = state.friends.map((_a) => {
+        if (_a.friend._id === action.payload.userId) {
+          const socketIds = action.payload.online
+            ? [...(_a.friend.online?.socketIds || []), action.payload.socketId]
+            : [];
+          _a.friend.online = { ..._a.friend.online, socketIds };
+        }
+        return _a;
+      });
+      return {
+        ...state,
+        friends: [...newFriends],
+      };
+
     default:
       return state;
   }

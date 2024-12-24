@@ -18,11 +18,13 @@ var app = express();
 
 app.use(cookieParser());
 
-app.use(cors({
-  origin: true,
-  credentials: true,
-  
-}));
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+  })
+);
+
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));

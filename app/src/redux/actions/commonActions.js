@@ -39,6 +39,12 @@ import {
   UPDATE_FCM_REQUEST,
   UPDATE_FCM_SUCCESS,
   UPDATE_FCM_FAILURE,
+  GET_FRIEND_DASHBOARD_REQUEST,
+  GET_FRIEND_DASHBOARD_SUCCESS,
+  GET_FRIEND_DASHBOARD_FAILURE,
+  GET_FOLLOWER_DASHBOARD_REQUEST,
+  GET_FOLLOWER_DASHBOARD_SUCCESS,
+  GET_FOLLOWER_DASHBOARD_FAILURE,
 } from "../constants/common";
 
 export const getProfile = () => async (dispatch) => {
@@ -271,6 +277,44 @@ export const updateFcmToken = (data) => async (dispatch) => {
     const errMessage = error.response?.data?.message || "Something went wrong";
     dispatch({
       type: UPDATE_FCM_FAILURE,
+      error: error.message,
+    });
+    return Promise.reject(errMessage);
+  }
+};
+
+export const getDashboardFriends = () => async (dispatch) => {
+  try {
+    dispatch({ type: GET_FRIEND_DASHBOARD_REQUEST });
+    const response = await axios.get("/dashboard/friends");
+    dispatch({
+      type: GET_FRIEND_DASHBOARD_SUCCESS,
+      payload: response.data.data,
+    });
+    return Promise.resolve(response.data);
+  } catch (error) {
+    const errMessage = error.response?.data?.message || "Something went wrong";
+    dispatch({
+      type: GET_FRIEND_DASHBOARD_FAILURE,
+      error: error.message,
+    });
+    return Promise.reject(errMessage);
+  }
+};
+
+export const getDashboardFollowers = () => async (dispatch) => {
+  try {
+    dispatch({ type: GET_FOLLOWER_DASHBOARD_REQUEST });
+    const response = await axios.get("/dashboard/followers");
+    dispatch({
+      type: GET_FOLLOWER_DASHBOARD_SUCCESS,
+      payload: response.data.data,
+    });
+    return Promise.resolve(response.data);
+  } catch (error) {
+    const errMessage = error.response?.data?.message || "Something went wrong";
+    dispatch({
+      type: GET_FOLLOWER_DASHBOARD_FAILURE,
       error: error.message,
     });
     return Promise.reject(errMessage);

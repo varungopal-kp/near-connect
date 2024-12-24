@@ -42,10 +42,9 @@ const Index = () => {
         );
       }
     };
-    if(auth.token){
+    if (auth.token) {
       fetchToken();
     }
-    
   }, [auth.token]);
 
   const requestNotificationPermission = () => {
@@ -62,11 +61,15 @@ const Index = () => {
   };
 
   onMessageListener((payload) => {
-    const totalNotifications = common.totalNotifications + 1;
-    dispatch({
-      type: UPDATE_DASHBOARD_COUNT,
-      payload: { totalNotifications },
-    });
+    if (payload.data.type === "CHAT") {
+    } else {
+      const totalNotifications = common.totalNotifications + 1;
+      dispatch({
+        type: UPDATE_DASHBOARD_COUNT,
+        payload: { totalNotifications },
+      });
+    }
+
     console.log("Notification received: ", payload);
   });
 
