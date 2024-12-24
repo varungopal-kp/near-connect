@@ -1,16 +1,22 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { searchProfile } from "../../redux/actions/commonActions";
 import InfiniteScrollList from "../../components/InfiniteScroll";
 import ProfilePic from "../../components/ProfilePic";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 export default function Index() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const search = new URLSearchParams(window.location.search);
-  let searchValue = search.get("q");
+  const [searchValue, setSearch] = useState(search.get("q"));
+
   if (!searchValue) {
     window.location.href = "/";
   }
+
+  useEffect(() => {
+    setSearch(searchParams.get("q"));
+  }, [searchParams]);
 
   const infiniteRender = (item) => {
     return (

@@ -14,7 +14,7 @@ export default function List(props) {
         onClick={() => {
           dispatch({
             type: SELECT_CHAT_USER,
-            payload: item.friend,
+            payload: item,
           });
         }}
       >
@@ -25,8 +25,8 @@ export default function List(props) {
           <div>{item.friend?.name}</div>
           <span className="link-color" style={{ fontSize: "x-small" }}>
             {item.friend?.username}
-          </span>{" "}
-          <i>new</i>
+          </span>
+          {item?.unseenChat && <i>new</i>}
         </div>
       </li>
     );

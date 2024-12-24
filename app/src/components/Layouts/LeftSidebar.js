@@ -134,11 +134,11 @@ export default function LeftSidebar(props) {
                 <a className="underline">{props.profileData?.name}</a>
                 <span>
                   <i className="fa fa-users"></i>Friends{" "}
-                  <em>{props.profileData.friendsCount}</em>
+                  <em>{props.profileData.friendsCount || 0}</em>
                 </span>
                 <span>
                   <i className="fa fa-user-plus"></i>Followers{" "}
-                  <em>{props.profileData.followersCount}</em>
+                  <em>{props.profileData.followersCount || 0}</em>
                 </span>
               </div>
               <div className="page-likes">
@@ -149,7 +149,7 @@ export default function LeftSidebar(props) {
                         <div>Requested</div>
                       ) : props.profileData?.userRelation === "following" ? (
                         <div>Following</div>
-                      ) : props.profileData?.userRelation === "follower" ?  (
+                      ) : props.profileData?.userRelation === "follower" ? (
                         <a
                           data-toggle="tab"
                           className="active pointer"
@@ -169,25 +169,27 @@ export default function LeftSidebar(props) {
                         >
                           Add Friend
                         </a>
-                      ):<a
-                      data-toggle="tab"
-                      className="active pointer"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        swal({
-                          title: "Are you sure?",
-                          icon: "warning",
-                          buttons: true,
-                          dangerMode: true,
-                        }).then((confirm) => {
-                          if (confirm) {
-                            handleAddFollower();
-                          }
-                        });
-                      }}
-                    >
-                      Follow
-                    </a>}
+                      ) : (
+                        <a
+                          data-toggle="tab"
+                          className="active pointer"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            swal({
+                              title: "Are you sure?",
+                              icon: "warning",
+                              buttons: true,
+                              dangerMode: true,
+                            }).then((confirm) => {
+                              if (confirm) {
+                                handleAddFollower();
+                              }
+                            });
+                          }}
+                        >
+                          Follow
+                        </a>
+                      )}
                     </li>
                   )}
                   <li className="nav-item">

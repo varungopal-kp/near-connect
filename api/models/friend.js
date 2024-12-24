@@ -8,7 +8,7 @@ const FriendSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    chat: { type: Boolean, default: false },
+    unseenChat: { type: Boolean, default: false },
   },
   {
     timestamps: true,

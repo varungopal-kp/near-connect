@@ -12,8 +12,11 @@ import ProfilePic from "../../components/ProfilePic";
 export default function Header(props) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
   const [isActive, setIsActive] = useState(false);
-  const [search, setSearch] = useState("");
+  const urlParams = new URLSearchParams(window.location.search);
+  const [search, setSearch] = useState(urlParams.get("q"));
+
   const userSettingsRef = useRef(null); // Reference to the user settings dropdown
   const navUserRef = useRef(null); // Reference to the user image div
 
@@ -113,12 +116,6 @@ export default function Header(props) {
             <a className="fa fa-sliders" href="#shoppingbag"></a>
           </span>
         </div>
-        <div className="mh-head second">
-          <form className="mh-form">
-            <input placeholder="search" />
-            <a href="#/" className="fa fa-search"></a>
-          </form>
-        </div>
       </div>
       <div className="topbar stick">
         <div className="logo">
@@ -134,6 +131,7 @@ export default function Header(props) {
               <input
                 type="text"
                 placeholder="Search "
+                value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
               <button
@@ -155,15 +153,14 @@ export default function Header(props) {
               </Link>
             </li>
             <li>
-              <a href="#" title="Messages" data-ripple="">
+              <Link to="/chats" title="Messages" data-ripple="">
                 <i class="ti-comment"></i>
-                <span>0</span>
-              </a>
+                <span>{common.totalChats}</span>
+              </Link>
             </li>
           </ul>
           <div className="user-img" onClick={toggleDropdown} ref={navUserRef}>
             <ProfilePic profile thumb defaultSize />
-            <span className="status f-online"></span>
             <div
               className={`user-setting ${isActive ? "active" : ""}`}
               ref={userSettingsRef} // Reference for the dropdown

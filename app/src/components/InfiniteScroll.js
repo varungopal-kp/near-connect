@@ -21,6 +21,8 @@ function InfiniteScrollList({
 
   const prevUser = useRef(user);
 
+  const preSeacrh = useRef(search);
+
   // Clear the list when the component mounts for switching tabs
   useEffect(() => {
     dispatch({ type: CLEAR_LIST, listKey: listKey });
@@ -39,9 +41,15 @@ function InfiniteScrollList({
           fetchData(1);
           prevUser.current = user;
         }
+      } else if (search) {
+        if (preSeacrh.current !== search) {
+          dispatch({ type: CLEAR_LIST, listKey: listKey });
+          fetchData(1, search);
+          preSeacrh.current = search;
+        }
       }
     }
-  }, [page, user]);
+  }, [page, user, search]);
 
   const fetchMoreData = () => {
     if (!loading && hasMore) {
@@ -49,8 +57,8 @@ function InfiniteScrollList({
     }
   };
 
-  const fetchData = (_page) => {
-    dispatch(fetchItems({ _page, limit, search, user }));
+  const fetchData = (_page, _search = "") => {
+    dispatch(fetchItems({ page: _page, limit, search: _search, user }));
   };
 
   return (
@@ -84,4 +92,4 @@ function InfiniteScrollList({
   );
 }
 
-export default memo(InfiniteScrollList);
+export default InfiniteScrollList;

@@ -6,7 +6,10 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   CREATE_ITEM,
   UPDATE_DASHBOAD_ONLINE_STATUS,
+  UPDATE_DASHBOARD_COUNT,
+  UPDATE_ITEMS,
 } from "../../redux/constants/common";
+import { updateChatSeen } from "../../redux/actions/commonActions";
 
 export default function Form(props) {
   const dispatch = useDispatch();
@@ -18,16 +21,44 @@ export default function Form(props) {
 
   const profile = props.profile;
 
-  useEffect(() => {
-    if (props.selectedFriend?.online?.socketIds?.length) {
-      setOnline(true);
-    }
-  }, [props.selectedFriend]);
+  const selectedFriendData = props.selectedFriend.friend;
 
   useEffect(() => {
-    if (profile && props.selectedFriend) {
+    if (selectedFriendData) {
+      console.log(props.selectedFriend);
+      if (props.selectedFriend.unseenChat) {
+        dispatch(updateChatSeen(selectedFriendData._id))
+          .then((res) => {
+            if (res.data) {
+              const friend = { ...props.selectedFriend };
+              dispatch({
+                type: UPDATE_DASHBOARD_COUNT,
+                payload: { totalChats: props.totalChats - 1 || 0 },
+              });
+              friend.unseenChat = false;
+              dispatch({
+                type: UPDATE_ITEMS,
+                payload: friend,
+              });
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      }
+    }
+  }, [selectedFriendData]);
+
+  useEffect(() => {
+    if (selectedFriendData?.online?.socketIds?.length) {
+      setOnline(true);
+    }
+  }, [selectedFriendData]);
+
+  useEffect(() => {
+    if (profile && selectedFriendData) {
       // Join the room for chat between the two users
-      const room = [profile._id, props.selectedFriend._id].sort().join("-");
+      const room = [profile._id, selectedFriendData._id].sort().join("-");
       props.socket.emit("joinRoom", room);
 
       // Define a handler for all socket events
@@ -55,14 +86,14 @@ export default function Form(props) {
       };
 
       const setOnlineStatus = (data) => {
-        if (data.userId === props.selectedFriend._id) {
+        if (data.userId === selectedFriendData._id) {
           const isOnline = data.status === "online" ? true : false;
           setOnline(isOnline);
           dispatch({
             type: UPDATE_DASHBOAD_ONLINE_STATUS,
             payload: {
               online: isOnline,
-              userId: props.selectedFriend._id,
+              userId: selectedFriendData._id,
               socketId: data.socketId,
             },
           });
@@ -85,12 +116,12 @@ export default function Form(props) {
         props.socket.off("onlineStatus");
       };
     }
-  }, [props.socket, profile, props.selectedFriend, typingUser]);
+  }, [props.socket, profile, selectedFriendData, typingUser]);
 
   const sendMessage = () => {
     const data = {
       sender: profile._id,
-      receiver: props.selectedFriend._id,
+      receiver: selectedFriendData._id,
       message: text,
     };
     props.socket.emit("sendMessage", data);
@@ -118,7 +149,7 @@ export default function Form(props) {
       setTyping(true);
       props.socket.emit("typing", {
         sender: profile._id,
-        receiver: props.selectedFriend._id,
+        receiver: selectedFriendData._id,
       });
     }
 
@@ -128,7 +159,7 @@ export default function Form(props) {
       setTyping(false);
       props.socket.emit("stopTyping", {
         sender: profile._id,
-        receiver: props.selectedFriend._id,
+        receiver: selectedFriendData._id,
       });
     }, 1000); // Delay of 1 second before stopping the typing event
   };
@@ -139,10 +170,10 @@ export default function Form(props) {
     <div className="peoples-mesg-box">
       <div className="conversation-head">
         <figure>
-          <ProfilePic url={props.selectedFriend?.pic} defaultSize />
+          <ProfilePic url={selectedFriendData?.pic} defaultSize />
         </figure>
         <span>
-          {props.selectedFriend?.name} <i>{online ? "online" : "offline"}</i>
+          {selectedFriendData?.name} <i>{online ? "online" : "offline"}</i>
         </span>
       </div>
       <ul className="chatting-area">
@@ -151,12 +182,12 @@ export default function Form(props) {
           limit={10}
           fetchItems={fetchMessageItems}
           lastmessage={false}
-          user={props.selectedFriend._id}
+          user={selectedFriendData._id}
           listKey={listKey}
         />
       </ul>
       <div className="message-text-container">
-        {typingUser && <p>{props.selectedFriend?.name} is typing...</p>}
+        {typingUser && <p>{selectedFriendData?.name} is typing...</p>}
         <form method="post">
           <textarea
             name="message"

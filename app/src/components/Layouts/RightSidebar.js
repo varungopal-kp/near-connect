@@ -10,6 +10,7 @@ import {
 } from "../../redux/actions/commonActions";
 import ProfilePic from "../ProfilePic";
 import { SELECT_CHAT_USER } from "../../redux/constants/common";
+import moment from "moment";
 
 export default function RightSidebar(props) {
   const navigate = useNavigate();
@@ -56,7 +57,7 @@ export default function RightSidebar(props) {
     }
     return <span className={`status ${status}`}></span>;
   };
-
+ 
   return (
     <div className="col-lg-3">
       <aside className="sidebar static">
@@ -71,7 +72,7 @@ export default function RightSidebar(props) {
                   onClick={() => {
                     dispatch({
                       type: SELECT_CHAT_USER,
-                      payload: friend.friend,
+                      payload: friend,
                     });
                     navigate("/chats");
                   }}
@@ -136,11 +137,11 @@ export default function RightSidebar(props) {
               <div class="page-meta">
                 <span>
                   <i class="fa fa-users"></i>Friends{" "}
-                  <em>{props.profileData.friendsCount}</em>
+                  <em>{props.profileData.friendsCount || 0}</em>
                 </span>
                 <span>
                   <i class="fa fa-user-plus"></i>Followers{" "}
-                  <em>{props.profileData.followersCount}</em>
+                  <em>{props.profileData.followersCount || 0}</em>
                 </span>
               </div>
               <div class="page-likes">
@@ -170,10 +171,13 @@ export default function RightSidebar(props) {
               </div>
               <div class="page-meta">
                 <span>
-                  DOB: <span>22/02/1995</span>
+                  DOB:{" "}
+                  <span>
+                    {moment(props.profileData.dob).format("LL") || "-"}
+                  </span>
                 </span>
                 <span>
-                  Place: <span>Kochi, Kerala</span>
+                  Place: <span>{props.profileData.place}</span>
                 </span>
               </div>
             </div>

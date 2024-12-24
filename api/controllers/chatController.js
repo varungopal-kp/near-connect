@@ -177,8 +177,8 @@ exports.saveMessage = async (data) => {
       user: data.receiver,
       friend: data.sender,
     });
-    if (!friend.chat) {
-      await friend.updateOne({ chat: true });
+    if (!friend.unseenChat) {
+      await friend.updateOne({ unseenChat: true });
       sendNotification({
         userId: [data.receiver],
         message: `New message`,
@@ -236,5 +236,33 @@ exports.getUserBySocketId = async (socketId) => {
   } catch (err) {
     console.error(err);
     throw err;
+  }
+};
+exports.updateSeenChat = async (req, res) => {
+  try {
+    const { userId } = req.user;
+    const { user } = req.params;
+    const friend = await Friend.findOne({
+      user: userId,
+      friend: user,
+    });
+    if (!friend) {
+      return responseHelper.error(res, null, "No friend found", 400);
+    }
+    await Friend.updateOne(
+      {
+        user: userId,
+        friend: user,
+      },
+      {
+        $set: {
+          unseenChat: false,
+        },
+      }
+    );
+    return responseHelper.success(res, true, "Success", 200, {});
+  } catch (err) {
+    console.error(err);
+    return responseHelper.error(res, err, "Error updating seen chat", 500);
   }
 };

@@ -45,6 +45,9 @@ import {
   GET_FOLLOWER_DASHBOARD_REQUEST,
   GET_FOLLOWER_DASHBOARD_SUCCESS,
   GET_FOLLOWER_DASHBOARD_FAILURE,
+  UPDATE_CHAT_SEEN_REQUEST,
+  UPDATE_CHAT_SEEN_SUCCESS,
+  UPDATE_CHAT_SEEN_FAILURE,
 } from "../constants/common";
 
 export const getProfile = () => async (dispatch) => {
@@ -315,6 +318,24 @@ export const getDashboardFollowers = () => async (dispatch) => {
     const errMessage = error.response?.data?.message || "Something went wrong";
     dispatch({
       type: GET_FOLLOWER_DASHBOARD_FAILURE,
+      error: error.message,
+    });
+    return Promise.reject(errMessage);
+  }
+};
+export const updateChatSeen = (id) => async (dispatch) => {
+  try {
+    dispatch({ type: UPDATE_CHAT_SEEN_REQUEST });
+    const response = await axios.put(`/chats/unseen/${id}`);
+    dispatch({
+      type: UPDATE_CHAT_SEEN_SUCCESS,
+      payload: response.data,
+    });
+    return Promise.resolve(response.data);
+  } catch (error) {
+    const errMessage = error.response?.data?.message || "Something went wrong";
+    dispatch({
+      type: UPDATE_CHAT_SEEN_FAILURE,
       error: error.message,
     });
     return Promise.reject(errMessage);

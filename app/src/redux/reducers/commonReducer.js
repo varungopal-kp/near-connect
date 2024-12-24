@@ -59,10 +59,15 @@ const itemsReducer = (state = initialState, action) => {
         error: null,
       };
     case FETCH_ITEMS_SUCCESS:
+      let newList = [...(state[listKey] || []), ...action.payload.list];
+      if (action.payload.list.length === 0) {
+        newList = [];
+      }
+
       return {
         ...state,
         loading: false,
-        [listKey]: [...(state[listKey] || []), ...action.payload.list],
+        [listKey]: newList,
         page: state.page + 1,
         hasMore: action.payload.hasMore,
       };

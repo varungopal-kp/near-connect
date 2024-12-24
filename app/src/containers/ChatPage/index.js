@@ -14,6 +14,8 @@ export default function Index(props) {
 
   const chatUser = useSelector((state) => state.common.chatUser);
 
+  const totalChats = useSelector((state) => state.common.totalChats);
+
   useEffect(() => {
     if (profile) {
       socket.emit("userOnline", profile._id);
@@ -43,6 +45,7 @@ export default function Index(props) {
                 selectedFriend={selectedFriend}
                 socket={socket}
                 profile={profile}
+                totalChats={totalChats}
               />
             )}
           </div>

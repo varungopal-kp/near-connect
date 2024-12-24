@@ -10,7 +10,17 @@ exports.getUnseenCounts = async (req, res) => {
       user: userId,
       seen: false,
     });
-    return responseHelper.success(res, { notifications }, "Success", 200);
+    const chats = await Friend.countDocuments({
+      user: userId,
+      unseenChat: true,
+    });
+
+    return responseHelper.success(
+      res,
+      { notifications, chats },
+      "Success",
+      200
+    );
   } catch (error) {
     return responseHelper.error(
       res,

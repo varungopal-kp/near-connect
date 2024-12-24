@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 
 import { useDispatch, useSelector } from "react-redux";
 import { onMessageListener, requestForToken } from "../../firebase";
-import { UPDATE_DASHBOARD_COUNT } from "../../redux/constants/common";
+import {
+  UPDATE_DASHBOARD_COUNT,
+  UPDATE_ITEMS,
+} from "../../redux/constants/common";
 import { updateFcmToken } from "../../redux/actions/commonActions";
 
 const Index = () => {
   const dispatch = useDispatch();
-  const [notification, setNotification] = useState({ title: "", body: "" });
   const fcmToken = localStorage.getItem("fcmToken");
 
   const common = useSelector((state) => state.common);
@@ -18,17 +20,18 @@ const Index = () => {
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.addEventListener("message", (event) => {
         if (event.data && event.data.type === "BACKGROUND_NOTIFICATION") {
-          const totalNotifications = common.totalNotifications + 1;
-          dispatch({
-            type: UPDATE_DASHBOARD_COUNT,
-            payload: { totalNotifications },
-          });
+          if (event.data.payload?.data?.type === "CHAT") {
+            handleChatNotification(event.data.payload);
+          } else {
+            handleCommonNotification(event.data.payload);
+          }
+
           console.log("React background notification:", event.data.payload);
         }
       });
     }
     // used common for closure issue
-  }, [dispatch, common.totalNotifications]);
+  }, [dispatch, common.totalNotifications, common.list?.length]);
 
   useEffect(() => {
     requestNotificationPermission();
@@ -60,19 +63,49 @@ const Index = () => {
     }
   };
 
-  onMessageListener((payload) => {
-    if (payload.data.type === "CHAT") {
-    } else {
-      const totalNotifications = common.totalNotifications + 1;
-      dispatch({
-        type: UPDATE_DASHBOARD_COUNT,
-        payload: { totalNotifications },
-      });
+  const handleChatNotification = (payload) => {
+    const totalChats = common.totalChats + 1;
+    dispatch({
+      type: UPDATE_DASHBOARD_COUNT,
+      payload: { totalChats },
+    });
+    const friend = common.list?.find(
+      (item) => item.friend?._id === payload.data.sender
+    );
+    if (friend) {
+      if (!friend.unseenChat) {
+        friend.unseenChat = true;
+        dispatch({
+          type: UPDATE_ITEMS,
+          payload: friend,
+        });
+      }
     }
+  };
 
-    console.log("Notification received: ", payload);
+  const handleCommonNotification = (payload) => {
+    const totalNotifications = common.totalNotifications + 1;
+    dispatch({
+      type: UPDATE_DASHBOARD_COUNT,
+      payload: { totalNotifications },
+    });
+  };
+
+  onMessageListener((payload) => {
+    try {
+      if (payload.data.type === "CHAT") {
+        handleChatNotification(payload);
+      } else {
+        handleCommonNotification(payload);
+      }
+      console.log("Notification received: ", payload);
+    } catch (error) {
+      console.error(error);
+    }
   });
 
+
+  // no render
   return null;
 };
 
