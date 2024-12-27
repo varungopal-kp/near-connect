@@ -33,7 +33,7 @@ export default function Index() {
                 <h2 className="log-title">Login</h2>
                 <p>
                   Need an account?{" "}
-                  <a href="/" title="">
+                  <a href="/register" title="">
                     Sign Up
                   </a>
                 </p>

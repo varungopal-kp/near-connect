@@ -8,7 +8,7 @@ const signupSchema = Joi.object({
     'any.required': 'Name is required',
   }),
   email: Joi.string()
-    .email()
+    .email({ tlds: { allow: false } })
     .required()
     .messages({
       'string.base': 'Email must be a string',
@@ -25,6 +25,12 @@ const signupSchema = Joi.object({
       'string.min': 'Password must be at least 6 characters long',
       'any.required': 'Password is required',
     }),
+  username: Joi.string().required().messages({
+    'string.base': 'Username must be a string',
+    'string.empty': 'Username cannot be empty',
+    'any.required': 'Username is required',
+  }),
+
 });
 
 // Login validation schema

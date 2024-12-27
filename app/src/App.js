@@ -22,10 +22,10 @@ import ProfilePage from "./containers/ProfilePage/index";
 import NearbyPage from "./containers/NearbyPage/index";
 import PostPage from "./containers/PostPage/index";
 import ChatPage from "./containers/ChatPage/index";
+import SignupPage from "./containers/SignupPage/index";
 import Loader from "./components/Loader/index";
 
 function App() {
-
   return (
     <Provider store={store}>
       <div className="App">
@@ -94,7 +94,7 @@ function App() {
               </Layout>
             }
           />
-            <Route
+          <Route
             path="/nearby"
             element={
               <Layout>
@@ -102,7 +102,7 @@ function App() {
               </Layout>
             }
           />
-           <Route
+          <Route
             path="/posts"
             element={
               <Layout>
@@ -110,7 +110,7 @@ function App() {
               </Layout>
             }
           />
-           <Route
+          <Route
             path="/chats"
             element={
               <Layout>
@@ -159,6 +159,7 @@ function App() {
             }
           />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<SignupPage />} />
         </Routes>
       </div>
       <Loader />

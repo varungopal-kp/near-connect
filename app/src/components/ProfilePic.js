@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 
 export default function ProfilePic(props) {
   const [image, setImage] = React.useState(
-    `${process.env.REACT_APP_URL}/images/propic.jpg`
+    `${process.env.REACT_APP_URL}/images/propic.png`
   );
 
   let picStyle = {};
@@ -29,9 +29,15 @@ export default function ProfilePic(props) {
   useEffect(() => {
     if (props.profile && profileData) {
       if (props.thumb) {
-        setImage(`${process.env.REACT_APP_BASE_URL}/${profileData.thumbnail}`);
+        if (profileData.thumbnail) {
+          setImage(
+            `${process.env.REACT_APP_BASE_URL}/${profileData.thumbnail}`
+          );
+        }
       } else if (profileData?.pic) {
-        setImage(`${process.env.REACT_APP_BASE_URL}/${profileData.pic}`);
+        if (profileData.pic) {
+          setImage(`${process.env.REACT_APP_BASE_URL}/${profileData.pic}`);
+        }
       }
     }
   }, [profileData, props.profile]);

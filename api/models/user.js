@@ -33,8 +33,8 @@ const UserSchema = new Schema(
     place: { type: String },
     pincode: { type: String },
     location: {
-      type: { type: String, enum: ["Point"], required: true }, // 'Point' for GeoJSON standard
-      coordinates: { type: [Number], required: true }, // [longitude, latitude]
+      type: { type: String, enum: ["Point"], required: true, default: "Point" }, // 'Point' for GeoJSON standard
+      coordinates: { type: [Number], required: true, default: [0, 0] }, // [longitude, latitude]
     },
     followersCount: { type: Number, default: 0 },
     friendsCount: { type: Number, default: 0 },

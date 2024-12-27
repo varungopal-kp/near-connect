@@ -25,7 +25,7 @@ exports.login = async (req, res) => {
     }
 
     // Generate JWT tokens
-    const tokens = generateTokens(user);   
+    const tokens = generateTokens(user);
 
     return responseHelper.success(
       res,
@@ -42,14 +42,14 @@ exports.login = async (req, res) => {
 };
 
 exports.signup = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, username } = req.body;
 
   try {
     // Check if the user already exists
-    let user = await User.findOne({ email });
+    let user = await User.findOne({ $or: [{ email }, { username }] });
     if (user) {
-      return responseHelper.error(res, {}, "User already exists", 400);
-    }
+      return responseHelper.error(res, null, "User already exists", 400);
+    }   
 
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -59,6 +59,7 @@ exports.signup = async (req, res) => {
       name,
       email,
       password: hashedPassword,
+      username,
     });
 
     // Save the user to the database
